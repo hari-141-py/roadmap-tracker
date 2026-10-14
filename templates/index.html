@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevOps roadmap tracker</title>
+<script>
+try{var _t=localStorage.getItem('devops-tracker-theme')||'dark';
+if(_t==='system')_t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+document.documentElement.setAttribute('data-theme',_t)}catch(e){}
+</script>
+<style>
+:root,[data-theme=dark]{
+  --bg:#111111;--card:#151515;--elev:#20201f;--hi:#2c2c2b;--fg:#ffffff;--rgb:255,255,255;color-scheme:dark;
+}
+[data-theme=light]{
+  --bg:#ffffff;--card:#f5f5f4;--elev:#e9e9e7;--hi:#dcdcda;--fg:#111111;--rgb:17,17,17;color-scheme:light;
+}
+:root{
+  --mute:rgba(var(--rgb),.62);--faint:rgba(var(--rgb),.42);--line:rgba(var(--rgb),.12);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);transition:background .3s,color .3s;
+  font:400 15px/1.5 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:4px}
+[hidden]{display:none!important}
+.wrap{max-width:900px;margin:0 auto;padding:44px 24px 96px}
+
+/* top bar */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+h1{margin:0;font-size:clamp(34px,6.5vw,56px);font-weight:300;letter-spacing:-.025em;line-height:1.05;font-variation-settings:"opsz" 96}
+.tools{display:flex;align-items:center;gap:10px;padding-top:6px}
+#theme{width:38px;height:38px;padding:0;border-radius:50%;background:var(--elev);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+#theme svg{width:18px;height:18px;fill:none;stroke:var(--fg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+[data-theme=dark] .i-moon{display:none}[data-theme=light] .i-sun{display:none}
+#timer{display:flex;align-items:center;gap:10px;padding:4px 5px 4px 14px;border:1px solid var(--line);border-radius:99px;background:var(--card);font-size:13px}
+#timer .pulse{width:7px;height:7px;border-radius:50%;background:var(--fg);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.25}}
+#timer time{font-variant-numeric:tabular-nums}
+#tname{max-width:14ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mute)}
+.mini{padding:4px 12px;border-radius:99px;border:1px solid var(--line);background:var(--elev);font-size:12px}
+
+.tabs{display:flex;gap:26px;margin-top:30px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;padding:10px 0;color:var(--mute);border-bottom:2px solid transparent;margin-bottom:-1px;font-size:15px;transition:color .2s}
+.tab:hover{color:var(--fg)}
+.tab[aria-selected=true]{color:var(--fg);border-color:var(--fg)}
+.view{padding-top:36px}
+
+.lead{margin:0;max-width:60ch;font-size:18px;line-height:1.55;color:var(--mute)}
+.lead b{color:var(--fg);font-weight:500}
+.next{margin:12px 0 0;font-size:14px;color:var(--mute)}
+.linkish{background:none;border:0;padding:0;color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
+
+/* overview strip */
+.strip-wrap{margin-top:44px}
+.strip{position:relative;display:flex;gap:3px;height:36px;margin-top:30px}
+.seg{position:relative;flex:1 1 0;min-width:4px;padding:0;border:0;background:var(--elev);border-radius:3px;overflow:hidden}
+.seg i{position:absolute;inset:0;background:var(--fg);transform-origin:left center;transform:scaleX(var(--p,0));transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.seg:hover{background:var(--hi)}
+.today{position:absolute;z-index:2;top:-8px;bottom:-8px;width:1px;background:var(--fg);pointer-events:none;transition:left .5s}
+.today em{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:5px;font-style:normal;font-size:12px;white-space:nowrap}
+.phases{display:flex;gap:3px;margin-top:12px;font-size:12px;color:var(--mute)}
+.phases div{flex:1 1 0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:28px 24px;margin-top:40px;padding-top:22px;border-top:1px solid var(--line)}
+.stat b{display:block;font-size:30px;font-weight:300;letter-spacing:-.01em;line-height:1.15;font-variation-settings:"opsz" 48}
+.stat b small{font-size:15px;color:var(--mute);font-weight:400}
+.stat span{display:block;margin-top:4px;color:var(--mute);font-size:13px;line-height:1.35}
+
+.pace{margin-top:48px}
+.pace h2,.gcard h2{margin:0;font-size:15px;font-weight:500}
+.pace p,.gcard p{margin:2px 0 0;font-size:13px;color:var(--mute);max-width:64ch}
+.weeks{display:flex;align-items:flex-end;gap:5px;height:64px;margin-top:16px}
+.weeks i{flex:1;min-height:3px;height:3px;background:var(--elev);border-radius:2px;transition:height .7s cubic-bezier(.2,.7,.2,1)}
+.weeks i.has{background:rgba(var(--rgb),.5)}
+.weeks i.now.has{background:var(--fg)}
+
+/* timeline */
+#timeline{position:relative;margin-top:56px;padding-left:40px}
+.rail{position:absolute;left:11px;top:6px;bottom:6px;width:1px;background:var(--line)}
+.rail-fill{position:absolute;inset:0;background:var(--fg);transform-origin:top center;transform:scaleY(0)}
+.phase{display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin:44px 0 10px}
+.phase-sec:first-of-type .phase{margin-top:0}
+.phase h2{margin:0;font-size:22px;font-weight:400;letter-spacing:-.01em}
+.phase .pp{font-size:13px;color:var(--mute)}
+.topic{position:relative;border-top:1px solid var(--line)}
+.dot{position:absolute;z-index:1;left:-34px;top:23px;width:11px;height:11px;border-radius:50%;background:var(--bg);border:1px solid var(--faint);transition:border-color .3s,background .3s}
+.topic.doing .dot{background:linear-gradient(90deg,var(--fg) 50%,var(--bg) 50%);border-color:var(--fg)}
+.topic.done .dot{background:var(--fg);border-color:var(--fg)}
+.topic.in-view .dot{border-color:var(--fg)}
+.head{all:unset;box-sizing:border-box;display:grid;grid-template-columns:28px 1fr auto 18px;align-items:center;gap:8px;width:100%;padding:16px 0 4px;cursor:pointer}
+.head:focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-radius:6px}
+.idx{font-size:13px;color:var(--faint);font-variant-numeric:tabular-nums;transition:color .3s}
+.topic.in-view .idx{color:var(--fg)}
+.name{font-size:18px;font-weight:500;letter-spacing:-.005em}
+.core{margin-left:10px;padding:1px 8px;border:1px solid var(--line);border-radius:99px;font-style:normal;font-size:11px;font-weight:400;color:var(--mute);vertical-align:2px}
+.tag{padding:2px 11px;border:1px solid var(--line);border-radius:99px;font-size:12px;color:var(--mute);white-space:nowrap}
+.tag.done{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.tag.ahead,.tag.ontrack{border-color:var(--fg);color:var(--fg)}
+.tag.behind{border:1px dashed var(--fg);color:var(--fg)}
+.tag.upcoming{border-color:transparent}
+.chev{width:7px;height:7px;justify-self:center;margin-top:-3px;border-right:1.5px solid var(--mute);border-bottom:1.5px solid var(--mute);transform:rotate(45deg);transition:transform .25s}
+.open .chev{transform:rotate(-135deg);margin-top:3px}
+.meta{display:flex;flex-wrap:wrap;gap:2px 20px;padding:0 0 12px 36px;font-size:13px;color:var(--mute)}
+.bar{height:2px;margin:0 0 16px 36px;background:var(--elev);border-radius:2px;overflow:hidden}
+.bar b{display:block;height:100%;width:0;background:var(--fg);transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows .3s ease}
+.open .panel{grid-template-rows:1fr}
+.panel>.in{min-height:0;overflow:hidden}
+.box{margin:0 0 18px 36px;padding:6px 18px 16px;background:var(--card);border-radius:12px}
+.subs{list-style:none;margin:0;padding:0}
+.subs li+li{border-top:1px solid var(--line)}
+.sub{all:unset;box-sizing:border-box;display:flex;align-items:flex-start;gap:12px;width:100%;padding:10px 0;font-size:14.5px;line-height:1.4;cursor:pointer}
+.sub:focus-visible{outline:2px solid var(--fg);outline-offset:2px;border-radius:6px}
+.cb{position:relative;flex:none;width:16px;height:16px;margin-top:2px;border:1px solid var(--faint);border-radius:4px;transition:background .2s,border-color .2s}
+.cb::after{content:"";position:absolute;left:4.5px;top:1.5px;width:4px;height:8px;border:solid var(--bg);border-width:0 1.6px 1.6px 0;transform:rotate(45deg) scale(0);transition:transform .2s}
+.sub[aria-checked=true] .cb{background:var(--fg);border-color:var(--fg)}
+.sub[aria-checked=true] .cb::after{transform:rotate(45deg) scale(1)}
+.sub[aria-checked=true] .t{color:var(--mute)}
+.when{margin-left:auto;padding-left:12px;font-size:12px;color:var(--faint);white-space:nowrap}
+.log{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+.log .tm{margin-right:auto;color:var(--fg)}
+.chip{padding:3px 12px;border:1px solid var(--line);border-radius:99px;background:var(--elev);font-size:12px;transition:border-color .2s}
+.chip:hover{border-color:var(--faint)}
+.chip[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.note-in{display:block;width:100%;margin-top:12px;padding:10px 12px;background:var(--elev);color:var(--fg);border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13.5px;line-height:1.5;resize:vertical}
+.note-in::placeholder{color:var(--faint)}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--mute)}
+.plan{display:inline-flex;align-items:center;gap:8px}
+.plan output{min-width:2ch;text-align:center;color:var(--fg)}
+.step{width:26px;height:26px;padding:0;background:var(--elev);border:1px solid var(--line);border-radius:50%;line-height:1;font-size:15px}
+.step:hover{border-color:var(--faint)}
+.note{margin:36px 0 0;font-size:13px;color:var(--faint)}
+
+/* graphs */
+.gcard{margin-top:44px}
+.gcard:first-child{margin-top:0}
+.gtop{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+.chart{margin-top:14px;padding:12px;background:var(--card);border-radius:12px;overflow:hidden}
+.chart svg{display:block}
+.chart text{fill:var(--mute);font:11px "Bricolage Grotesque",system-ui,sans-serif}
+.chart text.strong{fill:var(--fg)}
+.grid{stroke:var(--line);stroke-width:1}
+.grid.v{opacity:.55}
+.ln-plan{stroke:var(--faint);stroke-width:2;stroke-dasharray:5 5;fill:none}
+.ln-act{stroke:var(--fg);stroke-width:2.2;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.ln-proj{stroke:var(--fg);stroke-width:2;stroke-dasharray:2 5;stroke-linecap:round;fill:none}
+.ln-area{fill:var(--fg);fill-opacity:.07;stroke:none}
+.ln-today{stroke:var(--fg);stroke-width:1;opacity:.8}
+.ln-target{stroke:var(--fg);stroke-width:1;stroke-dasharray:3 4;opacity:.8}
+.gbar{transform-box:fill-box}
+.empty{margin:0;padding:20px 8px;color:var(--mute);font-size:14px}
+.seg2{display:inline-flex;padding:3px;background:var(--elev);border-radius:99px}
+.seg2 button{border:0;background:transparent;padding:4px 14px;border-radius:99px;color:var(--mute);font-size:13px}
+.seg2 button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+
+/* settings */
+.cfg{margin-top:44px}
+.cfg:first-child{margin-top:0}
+.cfg h2{margin:0 0 4px;font-size:20px;font-weight:400;letter-spacing:-.01em}
+.cfg .hint{margin:0 0 8px;font-size:13px;color:var(--mute);max-width:64ch}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding:14px 0;border-top:1px solid var(--line)}
+.row>span:first-child{max-width:44ch}
+.row small{display:block;margin-top:2px;font-size:12.5px;color:var(--mute);line-height:1.4}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.in{background:var(--elev);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font:inherit;font-size:14px;color-scheme:inherit}
+.in[type=number]{width:84px}
+.days{display:flex;gap:6px;flex-wrap:wrap}
+.days button{min-width:46px;padding:5px 0;border-radius:99px;border:1px solid var(--line);background:var(--elev);font-size:12.5px;color:var(--mute)}
+.days button[aria-pressed=true]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.sw{position:relative;width:38px;height:22px;margin:0;appearance:none;-webkit-appearance:none;background:var(--elev);border:1px solid var(--line);border-radius:99px;cursor:pointer;transition:background .2s;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--fg);transition:transform .2s,background .2s}
+.sw:checked{background:var(--fg)}
+.sw:checked::after{transform:translateX(16px);background:var(--bg)}
+.trow{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:8px 12px;padding:10px 0;border-top:1px solid var(--line);transition:opacity .2s}
+.trow.h{grid-template-columns:1fr;padding:22px 0 8px;border-top:0;font-size:13px;color:var(--mute)}
+.trow.off{opacity:.42}
+.trow .pd{display:flex;align-items:center;gap:8px}
+.btn{padding:7px 18px;border:1px solid var(--fg);border-radius:99px;background:var(--fg);color:var(--bg);font-size:14px}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--faint)}
+.msg{font-size:13px;color:var(--mute)}
+.ta{display:block;width:100%;padding:10px 12px;background:var(--elev);color:var(--fg);border:1px solid var(--line);border-radius:10px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;resize:vertical}
+.cform{display:grid;gap:10px;padding:14px 0;border-top:1px solid var(--line)}
+.cform .r{display:flex;gap:10px;flex-wrap:wrap}
+.cform .in.grow{flex:1;min-width:160px}
+.clist .trow{grid-template-columns:1fr auto}
+
+
+@font-face{font-family:"Bricolage Grotesque";src:url(/static/fonts/bricolage.woff2) format("woff2");font-weight:200 800;font-stretch:75% 100%;font-display:swap}
+
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;margin-top:22px}
+.tcard{display:flex;flex-direction:column;gap:8px;padding:18px;background:var(--card);border-radius:12px;border:1px solid var(--line)}
+.tcard h3{margin:0;font-size:18px;font-weight:500}
+.tcard p{margin:0;font-size:13.5px;color:var(--mute)}
+.tcard .tmeta{font-size:12.5px;color:var(--faint)}
+.tcard details{font-size:13px;color:var(--mute)}
+.tcard summary{cursor:pointer;color:var(--fg)}
+.tcard details div{margin-top:8px;max-height:220px;overflow:auto}
+.tcard details b{display:block;margin-top:8px;color:var(--fg);font-weight:500}
+.tcard .btn{margin-top:auto;align-self:flex-start}
+#sh-prev canvas{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);display:block}
+#dlg-share{max-width:680px}
+/* shell + sidebar */
+.shell{display:flex;align-items:flex-start;min-height:100vh}
+.shell>.wrap{flex:1 1 0;min-width:0}
+#side{position:sticky;top:0;flex:none;width:250px;height:100vh;display:flex;flex-direction:column;gap:6px;padding:16px 10px;background:var(--card);border-right:1px solid var(--line);transition:width .25s;overflow:hidden;z-index:20}
+#side.min{width:62px;padding:16px 8px}
+.side-top{display:flex;align-items:center;gap:10px;padding:0 0 10px}
+#sidetog{width:38px;height:38px;flex:none;padding:0;display:grid;place-items:center;border-radius:10px;background:transparent;border:1px solid transparent}
+#sidetog:hover{background:var(--elev)}
+#sidetog svg{width:18px;height:18px;stroke:var(--fg);fill:none;stroke-width:1.6;stroke-linecap:round}
+.side-brand{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+#tpls{display:flex;flex-direction:column;gap:4px;overflow:auto;flex:1;min-height:0}
+.ti{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;cursor:pointer;white-space:nowrap}
+.ti:hover,.ti.on{background:var(--elev)}
+.ti.on{box-shadow:inset 2px 0 0 var(--fg)}
+.ti:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.ini{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--hi);font-weight:500;font-size:14px}
+.ti.on .ini{background:var(--fg);color:var(--bg)}
+.lbl{min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.lbl b{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis}
+.lbl small{font-size:12px;color:var(--mute)}
+.side-add{display:flex;align-items:center;gap:10px;padding:7px 8px;border:1px dashed var(--line);border-radius:10px;background:transparent;white-space:nowrap;text-align:left}
+.side-add:hover{border-color:var(--faint)}
+.side-add .ini{background:transparent;font-size:20px;font-weight:300}
+#side.min .lbl,#side.min .side-brand{display:none}
+#side.min .ti,#side.min .side-add{justify-content:center;padding:7px 0}
+/* find bar, links, quick add */
+.find{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:44px}
+.find .in{flex:1;min-width:180px}
+.links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0 0;font-size:13px}
+.links a{color:var(--fg);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
+.addsub{margin-top:12px}.addsub .in{width:100%}
+.btn.sm{padding:4px 14px;font-size:13px}
+.chip[disabled],.btn[disabled]{opacity:.35;cursor:default}
+/* settings manager */
+.trow .pd{flex-wrap:wrap;justify-content:flex-end}
+.trow small{display:block;font-size:12.5px;color:var(--mute);line-height:1.4}
+.trow.sec{padding-top:26px}
+.trow.sec>.in{width:100%;font-size:16px}
+.addrow{padding:8px 0 4px 50px}
+/* dialogs */
+dialog{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:22px;width:calc(100% - 32px);max-width:540px}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+dialog h2{margin:0 0 6px;font-size:20px;font-weight:400}
+dialog .cform{border-top:0;padding-bottom:0}
+.chk{display:flex;align-items:center;gap:10px;font-size:14px}
+@media (max-width:760px){
+  .shell{padding-left:62px}
+  #side{position:fixed;left:0;top:0;bottom:0}
+  #side:not(.min){box-shadow:0 0 40px rgba(0,0,0,.5)}
+}
+@media (max-width:640px){
+  .wrap{padding:30px 18px 72px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  #timeline{padding-left:32px}
+  .rail{left:7px}.dot{left:-30px}
+  .meta,.bar,.box{margin-left:0}
+  .box{padding:4px 14px 14px}
+  .head{grid-template-columns:24px 1fr auto 16px}
+  #tname{display:none}
+  .tabs{gap:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside id="side" aria-label="Trackers">
+  <div class="side-top">
+    <button id="sidetog" type="button" aria-label="Collapse or expand the sidebar" title="Collapse or expand sidebar" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <span class="side-brand">Trackers</span>
+  </div>
+  <nav id="tpls"></nav>
+  <button class="side-add" id="tnew" type="button" title="New tracker"><span class="ini">+</span><span class="lbl"><b>New tracker</b></span></button>
+</aside>
+<main class="wrap" id="app">
+  <header class="top">
+    <h1 id="ttitle">DevOps roadmap</h1>
+    <div class="tools">
+      <div id="timer" hidden><span class="pulse"></span><span id="tname"></span><time id="tclock">00:00:00</time><button class="mini" id="tstop" type="button">Stop</button></div>
+      <button id="theme" type="button" aria-label="Switch between light and dark theme" title="Switch theme">
+        <svg class="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" type="button" data-view="overview" aria-selected="true">Overview</button>
+    <button class="tab" role="tab" type="button" data-view="graph" aria-selected="false">Graphs</button>
+    <button class="tab" role="tab" type="button" data-view="templates" aria-selected="false">Templates</button>
+    <button class="tab" role="tab" type="button" data-view="settings" aria-selected="false">Settings</button>
+  </nav>
+
+  <!-- overview -->
+  <section class="view" id="v-overview">
+    <p class="lead" id="lead"></p>
+    <p class="next" id="next"></p>
+
+    <div class="strip-wrap" aria-label="Roadmap overview">
+      <div class="strip" id="strip"><span class="today" id="today"><em>Today</em></span></div>
+      <div class="phases" id="phases"></div>
+      <div class="stats">
+        <div class="stat"><b id="s-done"></b><span>Subtopics finished</span></div>
+        <div class="stat"><b id="s-pace"></b><span id="s-pace-l">Subtopics per week</span></div>
+        <div class="stat"><b id="s-avg"></b><span>Days per finished topic</span></div>
+        <div class="stat"><b id="s-end"></b><span id="s-end-l">Planned finish</span></div>
+        <div class="stat"><b id="s-streak"></b><span id="s-streak-l">Day streak</span></div>
+        <div class="stat"><b id="s-today"></b><span id="s-today-l">Finished today</span></div>
+        <div class="stat"><b id="s-hours"></b><span>Hours, past 7 days</span></div>
+        <div class="stat"><b id="s-total"></b><span>Hours logged in total</span></div>
+      </div>
+    </div>
+
+    <section class="pace" aria-label="Weekly pace">
+      <h2>Weekly pace</h2>
+      <p>Subtopics finished in each of the last 12 weeks. The bar on the right is the past 7 days.</p>
+      <div class="weeks" id="weeks"></div>
+    </section>
+
+    <div class="find"><input class="in" id="q" type="search" placeholder="Search topics and subtopics" aria-label="Search topics and subtopics"><button class="btn ghost sm" type="button" data-act="expand">Expand all</button><button class="btn ghost sm" type="button" data-act="collapse">Collapse all</button></div>
+    <div id="timeline"></div>
+  </section>
+
+  <!-- graphs -->
+  <section class="view" id="v-graph" hidden>
+    <section class="gcard">
+      <div class="gtop"><div><h2>Share your journey</h2><p>Make a progress card and a ready-to-post message for LinkedIn.</p></div><button class="btn" type="button" data-act="share">Share on LinkedIn</button></div>
+    </section>
+    <section class="gcard">
+      <h2>Progress against plan</h2>
+      <p>Cumulative subtopics finished. The dashed grey line is the plan, the solid line is you, and the dotted line is where your current pace leads.</p>
+      <div class="chart" id="c-burn"></div>
+    </section>
+    <section class="gcard">
+      <h2>Timeline</h2>
+      <p>Each row shows the planned window as a grey bar and your real start and finish as a solid bar.</p>
+      <div class="chart" id="c-gantt"></div>
+    </section>
+    <section class="gcard">
+      <div class="gtop">
+        <div><h2>Daily activity</h2><p>Darker squares are busier days.</p></div>
+        <div class="seg2" id="heat-mode"><button type="button" data-mode="subs" aria-pressed="true">Subtopics</button><button type="button" data-mode="hours" aria-pressed="false">Hours</button></div>
+      </div>
+      <div class="chart" id="c-heat"></div>
+    </section>
+    <section class="gcard">
+      <h2>Time per topic</h2>
+      <p>Hours logged with the timer or the quick-add buttons.</p>
+      <div class="chart" id="c-time"></div>
+    </section>
+  </section>
+
+  <!-- settings -->
+  <section class="view" id="v-templates" hidden></section>
+  <section class="view" id="v-settings" hidden></section>
+</main>
+</div>
+
+<dialog id="dlg-topic" aria-labelledby="dt-title">
+  <h2 id="dt-title"></h2>
+  <div class="cform">
+    <div class="r"><input class="in grow" id="dt-name" placeholder="Topic name" maxlength="80" aria-label="Topic name"><input class="in" id="dt-days" type="number" min="1" max="365" value="7" style="width:84px" aria-label="Planned days"></div>
+    <label class="chk"><input class="sw" type="checkbox" id="dt-core"> Mark as a core topic</label>
+    <textarea class="ta" id="dt-subs" rows="8" placeholder="One subtopic per line" aria-label="Subtopics, one per line"></textarea>
+    <textarea class="ta" id="dt-links" rows="3" placeholder="Links to resources (optional), one per line, starting with https://" aria-label="Links"></textarea>
+    <p class="msg" style="margin:0">Reordering subtopics keeps your ticks. Renaming one clears its tick.</p>
+    <div class="ctl"><button class="btn" type="button" data-dt="save">Save topic</button><button class="btn ghost" type="button" data-dt="cancel">Cancel</button><span class="msg" id="dt-msg"></span></div>
+  </div>
+</dialog>
+<dialog id="dlg-share" aria-labelledby="sh-title">
+  <h2 id="sh-title">Share your journey</h2>
+  <div class="cform">
+    <div id="sh-prev"></div>
+    <textarea class="ta" id="sh-text" rows="7" aria-label="Post text" style="font-family:inherit;font-size:14px"></textarea>
+    <p class="msg" style="margin:0">LinkedIn does not let apps attach images. So the button below copies the card and opens a new post with your text filled in. Press Ctrl+V in the post box to add the card.</p>
+    <div class="ctl"><button class="btn" type="button" data-sh="linkedin">Copy card and open LinkedIn</button><button class="btn ghost" type="button" data-sh="download">Download image</button><button class="btn ghost" type="button" data-sh="copytext">Copy text</button><button class="btn ghost" type="button" data-sh="close">Close</button></div>
+    <span class="msg" id="sh-msg"></span>
+  </div>
+</dialog>
+<dialog id="dlg-new" aria-labelledby="dn-title">
+  <h2 id="dn-title">New tracker</h2>
+  <div class="cform">
+    <input class="in" id="dn-name" placeholder="Tracker name, e.g. Python or AWS exam" maxlength="40" aria-label="Tracker name">
+    <select class="in" id="dn-kind" aria-label="Starting point"><option value="blank">Blank tracker</option><option value="devops">DevOps roadmap (full plan)</option><option value="copy">Copy the topics of the current tracker</option></select>
+    <div class="ctl"><button class="btn" type="button" data-dn="create">Create tracker</button><button class="btn ghost" type="button" data-dn="cancel">Cancel</button></div>
+  </div>
+</dialog>
+
+<script src="/static/vendor/gsap.min.js"></script>
+<script src="/static/vendor/ScrollTrigger.min.js"></script>
+<script>
+(async function(){
+'use strict';
+
+/* ================= roadmap data ================= */
+var DEFAULT_DATA=[
+{id:'p1',title:'Phase 1: Foundation',topics:[
+ {id:'linux',name:'Linux',days:21,core:1,subs:[
+  'File system hierarchy (/, /var, /etc, /proc)','File types, inodes, symbolic vs hard links','Users, groups, permissions, umask',
+  'sudo internals and security implications','Process lifecycle (fork, exec, signals)','systemd: units, targets, restart loops',
+  'Logs: journalctl, app logs vs system logs','Disk: mounts, fstab, disk pressure, inode exhaustion','Memory and CPU: free, vmstat, load vs usage',
+  'SSH: key-based auth, port forwarding','Common failures: service down, permission denied, disk full, high load']},
+ {id:'bash',name:'Bash, Python and automation',days:10,subs:[
+  'Shell execution model','Exit codes and error handling','Variables, quoting, conditionals','Loops and functions','Positional parameters',
+  'Pipes and redirection','Cron and scheduling pitfalls','Idempotent scripting','Logging in scripts','Defensive scripting']},
+ {id:'net',name:'Networking basics',days:10,subs:[
+  'OSI vs TCP/IP','IP addressing and CIDR','Ports and sockets','TCP handshake and common failures','DNS: resolution flow, caching, TTL',
+  'HTTP: request lifecycle, headers, status codes','HTTPS: certificates, TLS termination','Load balancing: L4 vs L7, health checks',
+  'Debugging: curl, dig/nslookup, ss/netstat, traceroute, tcpdump']},
+ {id:'git',name:'Git and team workflows',days:7,subs:[
+  'Git internals (commit tree)','Branching strategies','Merge vs rebase','Conflict resolution','GitHub, GitLab and Bitbucket (one deep, others light)',
+  'PR review etiquette','Commit hygiene','Tagging and releases','README writing']}
+]},
+{id:'p2',title:'Phase 2: Shipping software',topics:[
+ {id:'docker',name:'Docker',days:14,subs:[
+  'Why containers exist','Image vs container vs runtime','Dockerfile: layer caching, ENTRYPOINT vs CMD, env handling','Multi-stage builds',
+  'Image size and attack surface','Volumes vs bind mounts','Docker networking','Docker Compose patterns','Common failures: exits, ports, env, missing deps']},
+ {id:'aws',name:'Cloud fundamentals (AWS)',days:21,subs:[
+  'Shared responsibility model','ECS','Lambda','IAM: users vs roles, policies, boundaries','EC2: lifecycle, security groups',
+  'VPC: CIDR planning, public vs private subnets, routing','S3 basics and policies','RDS awareness','ECR workflow','Cost awareness and common mistakes']},
+ {id:'cicd',name:'CI/CD',days:14,subs:[
+  'CI vs CD','Pipeline design principles','Pipeline as code','Build, test, scan, artifact','Secrets management',
+  'Deployment strategies: rolling, blue-green, canary','Rollback mechanisms','Failure handling','Pipeline observability (logs, artifacts)']},
+ {id:'azure',name:'Azure DevOps (optional)',days:5,subs:[
+  'Why enterprises use it','Pipeline YAML overview','Repos and Boards basics','Comparison with GitHub Actions']}
+]},
+{id:'p3',title:'Phase 3: Cloud at scale',topics:[
+ {id:'iac',name:'Infrastructure as code',days:21,core:1,subs:[
+  'Declarative vs imperative','Providers and resources','Variables and outputs','State: why it exists, drift','Modules: structure, reusability',
+  'Environment separation (workspaces)','Naming and versioning practices','Remote backends','Ansible basics']},
+ {id:'k8s',name:'Kubernetes (CKA level)',days:35,core:1,subs:[
+  'Why Kubernetes exists','Versions, migrations, upgrades (v1.35)','Cluster architecture','Pods and controllers','Deployments vs StatefulSets',
+  'Services and networking','Ingress','ConfigMaps and Secrets','Storage: PVCs','Reliability: probes, resource limits','kubectl: describe, logs, exec',
+  'Failures: CrashLoopBackOff, image pull errors, misconfigured services','Scaling with EKS and Terraform']},
+ {id:'helm',name:'Helm and GitOps',days:14,subs:[
+  'Helm chart structure','Values and templating','Helm upgrades and rollbacks','GitOps principles','Argo CD: sync, drift correction',
+  'Rollback via Git','End-to-end project: GitHub Actions, Argo CD, Helm, EKS']}
+]},
+{id:'p4',title:'Phase 4: Production readiness',extra:1,topics:[
+ {id:'obs',name:'Observability',days:14,subs:[
+  'Metrics vs logs vs traces','RED vs USE signals','Alerting philosophy','Prometheus basics','Grafana dashboards','Logging patterns','OpenTelemetry and trace flow','Debugging with data']},
+ {id:'sec',name:'DevSecOps',days:10,subs:[
+  'Secrets hygiene','Image scanning','Dependency awareness','Kubernetes RBAC basics','Least privilege','Supply chain awareness (SBOM)']},
+ {id:'inc',name:'Incident response',days:7,subs:[
+  'On-call responsibility','Incident lifecycle','Postmortems','Runbooks','Reliability mindset']},
+ {id:'job',name:'Job readiness',days:10,subs:[
+  'Resume with engineering impact','GitHub as a portfolio','Interview story building','Debugging interviews','System design basics']}
+]},
+{id:'p5',title:'Bonus: Agentic AI for DevOps',extra:1,topics:[
+ {id:'agent',name:'Agents and AIOps',days:14,subs:[
+  'Building agents with Python','Deploying agents at scale','MCP integration','Tools and gateways','Project: DevOps copilot that reads logs and CI failures','AIOps on AWS']}
+]}
+];
+
+/* ================= helpers ================= */
+var DAY=864e5,KEY='devops-tracker-v1';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var mid=function(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())};
+var today0=function(){return mid(new Date())};
+var addDays=function(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n)};
+var iso=function(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+var pd=function(s){var p=String(s).split('-').map(Number);return new Date(p[0],p[1]-1,p[2])};
+var okDate=function(s){return !!s&&!isNaN(pd(s))};
+var fmt=function(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})};
+var fmtY=function(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})};
+var span=function(a,b){return Math.round((mid(b)-mid(a))/DAY)+1};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var fmtMin=function(m){m=Math.round(m);return m<60?m+'m':Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m'};
+var hrs=function(m){return (m/60).toFixed(1)};
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var hasGsap=!!(window.gsap&&window.ScrollTrigger);
+if(hasGsap)gsap.registerPlugin(ScrollTrigger);
+var DOW=[['Mon',1],['Tue',2],['Wed',3],['Thu',4],['Fri',5],['Sat',6],['Sun',0]];
+
+/* ================= state ================= */
+var DEFAULT_CFG={study:[1,1,1,1,1,1,1],buffer:0,win:14,daily:0,weekGoal:0};
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
+function isUrl(s){return /^https?:\/\//i.test(s)}
+function defaultSections(){var d=clone(DEFAULT_DATA);d.forEach(function(p){if(p.extra){p.off=true;delete p.extra}});return d}
+function freshTpl(name,sections){
+  return {id:uid('t'),name:name,sections:sections,start:iso(today0()),target:'',done:{},days:{},scale:1,skip:{},notes:{},mins:{},dayMins:{},timer:null,cfg:clone(DEFAULT_CFG)};
+}
+function normTpl(o){
+  var s=freshTpl('Untitled tracker',[]);
+  if(o&&typeof o==='object'){
+    Object.keys(s).forEach(function(k){if(o[k]!==undefined&&k!=='cfg')s[k]=o[k]});
+    if(o.cfg&&typeof o.cfg==='object')s.cfg=Object.assign(s.cfg,o.cfg);
+  }
+  s.id=String(s.id);s.name=String(s.name||'Untitled tracker').slice(0,40);
+  if(!Array.isArray(s.cfg.study)||s.cfg.study.length!==7||!s.cfg.study.some(Boolean))s.cfg.study=[1,1,1,1,1,1,1];
+  if(!okDate(s.start))s.start=iso(today0());
+  if(s.target&&!okDate(s.target))s.target='';
+  ['done','days','skip','notes','mins','dayMins'].forEach(function(k){if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]={}});
+  if(!(s.scale>0))s.scale=1;
+  s.sections=(Array.isArray(s.sections)?s.sections:[]).filter(Boolean).map(function(p){
+    return {id:String(p.id||uid('s')),title:String(p.title||'Untitled section').slice(0,80),off:!!p.off,
+      topics:(Array.isArray(p.topics)?p.topics:[]).filter(Boolean).map(function(t){
+        return {id:String(t.id||uid('c')),name:String(t.name||'Untitled topic').slice(0,80),days:Math.min(365,Math.max(1,parseInt(t.days,10)||7)),core:t.core?1:0,
+          subs:(Array.isArray(t.subs)?t.subs:[]).map(String).filter(Boolean),links:(Array.isArray(t.links)?t.links:[]).map(String).filter(isUrl)};
+      }).filter(function(t){return t.subs.length})};
+  });
+  return s;
+}
+/* progress saved by the first single-tracker version becomes the "DevOps roadmap" tracker */
+function migrate(o){
+  var secs=defaultSections();
+  if(o.p4)secs.forEach(function(p){p.off=false});
+  if(Array.isArray(o.custom)&&o.custom.length)secs.push({id:'pc',title:'Custom topics',topics:o.custom.map(function(c){return {id:c.id,name:c.name,days:c.days,subs:c.subs}})});
+  var t=Object.assign({},o,{name:'DevOps roadmap',sections:secs});
+  return normTpl(t);
+}
+function loadG(o){
+  var g={theme:'dark',view:'overview',side:!!(window.matchMedia&&matchMedia('(max-width:760px)').matches),active:null,tpls:[]};
+  if(o&&Array.isArray(o.tpls)){
+    g.theme=o.theme;g.view=o.view;if(typeof o.side==='boolean')g.side=o.side;g.active=o.active;
+    g.tpls=o.tpls.map(normTpl);
+  }else if(o&&typeof o==='object'&&Object.keys(o).length){
+    g.theme=o.theme;g.view=o.view;g.tpls=[migrate(o)];
+  }
+  if(['dark','light','system'].indexOf(g.theme)<0)g.theme='dark';
+  if(['overview','graph','templates','settings'].indexOf(g.view)<0)g.view='overview';
+  if(!g.tpls.length)g.tpls=[freshTpl('DevOps roadmap',defaultSections())];
+  if(!g.tpls.some(function(t){return t.id===g.active}))g.active=g.tpls[0].id;
+  return g;
+}
+function cur(){return G.tpls.filter(function(t){return t.id===G.active})[0]}
+var G, S, canSave=true, migratedLegacyState=false;
+try{
+  var response = await fetch('/api/state', {credentials:'same-origin'});
+  if(!response.ok) throw new Error('Could not load saved progress');
+  var payload = await response.json();
+  var initialState = payload && payload.state ? payload.state : {};
+  if(!initialState || !Object.keys(initialState).length){
+    try{
+      var legacyState = JSON.parse(localStorage.getItem(KEY) || '{}');
+      if(legacyState && typeof legacyState === 'object' && Object.keys(legacyState).length){initialState = legacyState;migratedLegacyState = true}
+    }catch(ignore){}
+  }else if(!Array.isArray(initialState.tpls)){migratedLegacyState = true}
+  G = loadG(initialState);
+}catch(e){
+  G = loadG({});canSave=false;  /* never overwrite saved data when loading failed */
+  console.error('Could not load tracker state from Flask:', e);
+}
+S = cur();
+var saveQueue = Promise.resolve();
+function save(){
+  if(!canSave)return;
+  var snapshot = JSON.stringify(G);
+  saveQueue = saveQueue.catch(function(){}).then(function(){
+    return fetch('/api/state', {method:'PUT',credentials:'same-origin',headers:{'Content-Type':'application/json'},body: snapshot})
+      .then(function(response){if(!response.ok) throw new Error('Save failed')});
+  }).catch(function(e){ console.error('Could not save tracker state:', e); });
+}
+if(migratedLegacyState) save();
+var OPEN=new Set(),VIEW='overview',LAST=null,HEAT='subs';
+/* ================= theme ================= */
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):{matches:true,addEventListener:function(){}};
+function resolved(){return G.theme==='system'?(mq.matches?'dark':'light'):G.theme}
+function applyTheme(){try{localStorage.setItem('devops-tracker-theme',G.theme)}catch(e){}document.documentElement.setAttribute('data-theme',resolved());$$('[data-theme-set]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.themeSet===G.theme))})}
+if(mq.addEventListener)mq.addEventListener('change',function(){if(G.theme==='system')applyTheme()});
+
+/* ================= plan maths ================= */
+function getData(){return S.sections}
+function topicIn(ph,t){return !ph.off&&!S.skip[t.id]}
+function effDays(t,scale){return S.days[t.id]!=null?S.days[t.id]:Math.max(1,Math.round(t.days*(scale==null?S.scale:scale)))}
+function isStudy(d){return !!S.cfg.study[d.getDay()]}
+function nextStudy(d){for(var i=0;i<7;i++){var x=addDays(d,i);if(isStudy(x))return x}return d}
+function compute(scale){
+  var list=[],cursor=pd(S.start),lastEnd=null;
+  getData().forEach(function(ph){
+    ph.topics.forEach(function(t){
+      var d=effDays(t,scale),sc=topicIn(ph,t),stamps=[];
+      t.subs.forEach(function(_,i){var v=S.done[t.id+':'+i];if(v)stamps.push(new Date(v))});
+      var n=stamps.length,tot=t.subs.length;
+      var ps=nextStudy(cursor),endI=ps,c=1;
+      while(c<d){endI=nextStudy(addDays(endI,1));c++}
+      var pe=addDays(endI,1);
+      if(sc){
+        cursor=pe;lastEnd=endI;
+        for(var b=0;b<S.cfg.buffer;b++)cursor=addDays(nextStudy(cursor),1);
+      }
+      list.push({ph:ph,t:t,d:d,n:n,tot:tot,ps:ps,pe:pe,endI:endI,inScope:sc,stamps:stamps,
+        started:n?new Date(Math.min.apply(null,stamps)):null,
+        finished:(n===tot&&tot>0)?new Date(Math.max.apply(null,stamps)):null});
+    });
+  });
+  return {list:list,end:lastEnd||pd(S.start)};
+}
+function status(x,T){
+  if(x.n===x.tot)return['done','Done'];
+  var f=x.n/x.tot;
+  if(T<x.ps)return f>0?['ahead','Ahead']:['upcoming','Upcoming'];
+  var e=Math.min(1,Math.max(0,(T-x.ps)/(x.pe-x.ps)));
+  if(f<e-.1)return['behind','Behind'];
+  if(f>e+.15)return['ahead','Ahead'];
+  return['ontrack','On track'];
+}
+function analyze(){
+  var C=compute(),T=today0(),start=pd(S.start);
+  var M={C:C,T:T,start:start,scope:C.list.filter(function(x){return x.inScope}),tot:0,done:0,stamps:[]};
+  M.scope.forEach(function(x){M.tot+=x.tot;M.done+=x.n;M.stamps=M.stamps.concat(x.stamps)});
+  var W=S.cfg.win,perWeek=0;
+  if(M.stamps.length){
+    var first=new Date(Math.min.apply(null,M.stamps));
+    var recent=M.stamps.filter(function(s){return span(s,T)<=W}).length;
+    perWeek=recent/Math.max(7,Math.min(W,span(first,T)))*7;
+  }
+  M.perWeek=perWeek;
+  var fin=M.scope.filter(function(x){return x.finished});
+  M.avg=fin.length?Math.round(fin.reduce(function(a,x){return a+span(x.started,x.finished)},0)/fin.length):0;
+  M.remaining=M.tot-M.done;
+  M.projEnd=(M.remaining&&perWeek)?addDays(T,Math.ceil(M.remaining/(perWeek/7))):null;
+  M.planDays=Math.max(1,Math.round((C.end-start)/DAY)+1);
+  M.bySubs={};
+  Object.keys(S.done).forEach(function(k){var d=iso(mid(new Date(S.done[k])));M.bySubs[d]=(M.bySubs[d]||0)+1});
+  var act=function(k){return (M.bySubs[k]||0)>0||(S.dayMins[k]||0)>0};
+  var cur=0,d=T;
+  if(!act(iso(d)))d=addDays(d,-1);
+  while(act(iso(d))){cur++;d=addDays(d,-1)}
+  var keys={};Object.keys(M.bySubs).concat(Object.keys(S.dayMins)).forEach(function(k){if(act(k))keys[k]=1});
+  var days=Object.keys(keys).sort(),best=0,run=0,prev=null;
+  days.forEach(function(k){var dt=pd(k);run=(prev&&Math.round((dt-prev)/DAY)===1)?run+1:1;if(run>best)best=run;prev=dt});
+  M.streak=cur;M.best=best;
+  M.todayN=M.bySubs[iso(T)]||0;
+  M.weekMins=0;for(var i=0;i<7;i++)M.weekMins+=S.dayMins[iso(addDays(T,-i))]||0;
+  M.totalMins=0;Object.keys(S.mins).forEach(function(k){M.totalMins+=S.mins[k]||0});
+  return M;
+}
+function findTopic(id){var r=null;getData().forEach(function(p){p.topics.forEach(function(t){if(t.id===id)r=t})});return r}
+
+/* ================= build overview DOM ================= */
+function build(){
+  var tl=$('#timeline');
+  tl.innerHTML='<div class="rail"><div class="rail-fill"></div></div>';
+  $$('.seg').forEach(function(e){e.remove()});
+  $('#phases').innerHTML='';
+  var n=0;
+  getData().forEach(function(ph){
+    var ts=ph.topics.filter(function(t){return topicIn(ph,t)});
+    if(!ts.length)return;
+    var sec=document.createElement('section');sec.className='phase-sec';
+    sec.innerHTML='<div class="phase"><h2>'+esc(ph.title)+'</h2><span class="pp" data-pp="'+ph.id+'"></span></div>';
+    ts.forEach(function(t){
+      n++;
+      sec.appendChild(topicEl(t,n));
+      var seg=document.createElement('button');
+      seg.className='seg';seg.type='button';seg.dataset.id=t.id;seg.setAttribute('aria-label','Go to '+t.name);
+      seg.innerHTML='<i></i>';$('#strip').appendChild(seg);
+    });
+    tl.appendChild(sec);
+    var pl=document.createElement('div');pl.className='phl';pl.dataset.ph=ph.id;
+    pl.textContent=ph.title.split(':')[0];$('#phases').appendChild(pl);
+  });
+  if(!n){var e0=document.createElement('p');e0.className='note';e0.textContent='No topics are included. Add or switch on topics in Settings.';tl.appendChild(e0)}
+  applyFilter();
+}
+function topicEl(t,n){
+  var el=document.createElement('article');
+  el.className='topic'+(OPEN.has(t.id)?' open':'');el.dataset.id=t.id;
+  var links=linksHtml(t);
+  var subs=t.subs.map(function(s,i){
+    return '<li><button class="sub" type="button" role="checkbox" aria-checked="false" data-k="'+t.id+':'+i+'"><span class="cb"></span><span class="t">'+esc(s)+'</span><span class="when"></span></button></li>';
+  }).join('');
+  el.innerHTML=
+   '<span class="dot"></span>'+
+   '<button class="head" type="button" aria-expanded="'+OPEN.has(t.id)+'"><span class="idx">'+String(n).padStart(2,'0')+'</span>'+
+   '<span class="name">'+esc(t.name)+(t.core?'<i class="core">core</i>':'')+'</span><span class="tag"></span><span class="chev"></span></button>'+
+   '<div class="meta"><span class="m-plan"></span><span class="m-count"></span></div>'+
+   '<div class="bar"><b></b></div>'+
+   '<div class="panel"><div class="in"><div class="box"><ul class="subs">'+subs+'</ul>'+
+   links+'<div class="addsub"><input class="in addsub-in" placeholder="Add a subtopic and press Enter" aria-label="Add a subtopic to '+esc(t.name)+'"></div>'+
+   '<div class="log"><span class="tm"></span>'+
+   '<button class="chip" type="button" data-act="timer" aria-pressed="false">Start timer</button>'+
+   '<button class="chip" type="button" data-add="15">+15m</button><button class="chip" type="button" data-add="30">+30m</button>'+
+   '<button class="chip" type="button" data-add="60">+1h</button><button class="chip" type="button" data-add="-15">\u221215m</button></div>'+
+   '<textarea class="note-in" rows="2" placeholder="Notes, commands and links to remember" aria-label="Notes for '+esc(t.name)+'"></textarea>'+
+   '<div class="foot"><span class="dates"></span><span class="plan">Planned days <button class="step" type="button" data-d="-1" aria-label="One day fewer">\u2212</button><output></output><button class="step" type="button" data-d="1" aria-label="One day more">+</button></span></div>'+
+   '</div></div></div>';
+  $('.note-in',el).value=S.notes[t.id]||'';
+  return el;
+}
+
+/* ================= update ================= */
+var firstRun=true;
+function update(){
+  var M=analyze();LAST=M;var T=M.T,C=M.C;
+  var tot=M.tot,done=M.done,perWeek=M.perWeek;
+
+  /* strip */
+  var phDays={},phDone={},phTot={};
+  M.scope.forEach(function(x){
+    var seg=$('.seg[data-id="'+x.t.id+'"]');
+    if(seg){seg.style.flexGrow=x.d;seg.style.setProperty('--p',x.n/x.tot);seg.title=x.t.name+': '+x.n+' of '+x.tot}
+    var id=x.ph.id;phDays[id]=(phDays[id]||0)+x.d;phDone[id]=(phDone[id]||0)+x.n;phTot[id]=(phTot[id]||0)+x.tot;
+  });
+  $$('.phl').forEach(function(e){e.style.flexGrow=phDays[e.dataset.ph]||1});
+  $$('.pp').forEach(function(e){var id=e.dataset.pp;e.textContent=Math.round((phDone[id]||0)/(phTot[id]||1)*100)+'% done'});
+  var frac=Math.min(1,Math.max(0,(T-M.start)/((C.end-M.start)||1)));
+  $('#today').style.left='calc('+(frac*100)+'% - 0.5px)';
+
+  /* stats */
+  var doneEl=$('#s-done');
+  var setDone=function(v){doneEl.innerHTML=Math.round(v)+'<small> of '+tot+'</small>'};
+  if(firstRun&&hasGsap&&!reduce){var o={v:0};gsap.to(o,{v:done,duration:1.1,ease:'power2.out',onUpdate:function(){setDone(o.v)},onComplete:function(){setDone(done)}})}
+  else setDone(done);
+  $('#s-pace').textContent=perWeek?perWeek.toFixed(1):'\u2014';
+  $('#s-pace-l').textContent='Subtopics per week, last '+S.cfg.win+' days';
+  $('#s-avg').textContent=M.avg||'\u2014';
+  $('#s-end').textContent=fmtY(C.end);
+  $('#s-end-l').textContent='Planned finish, '+M.planDays+' days from start';
+  $('#s-streak').innerHTML=M.streak+'<small> day'+(M.streak===1?'':'s')+'</small>';
+  $('#s-streak-l').textContent='Current streak, best '+M.best;
+  $('#s-today').innerHTML=S.cfg.daily>0?M.todayN+'<small> of '+S.cfg.daily+'</small>':String(M.todayN);
+  $('#s-today-l').textContent=S.cfg.daily>0?'Subtopics today against your goal':'Finished today';
+  $('#s-hours').innerHTML=hrs(M.weekMins)+(S.cfg.weekGoal>0?'<small> of '+S.cfg.weekGoal+'</small>':'');
+  $('#s-total').textContent=hrs(M.totalMins);
+
+  /* lead */
+  var lead,tg=okDate(S.target)?pd(S.target):null;
+  if(!tot){lead='Nothing is included in your plan yet. Add topics in Settings.'}
+  else if(!done){lead='Tick off subtopics as you learn them. Your plan runs '+M.planDays+' days and ends on <b>'+fmtY(C.end)+'</b>.'}
+  else if(!M.remaining){lead='Everything in scope is finished. Nice work.'}
+  else if(!perWeek){lead='<b>'+done+' of '+tot+'</b> subtopics done, but nothing in the last '+S.cfg.win+' days, so there is no projection yet. Planned finish is <b>'+fmtY(C.end)+'</b>.'}
+  else{
+    var delta=Math.round((M.projEnd-C.end)/DAY);
+    var cmp=Math.abs(delta)<=2?'right on plan':'<b>'+Math.abs(delta)+' day'+(Math.abs(delta)===1?'':'s')+(delta>0?' behind':' ahead of')+'</b> plan';
+    lead='<b>'+Math.round(done/tot*100)+'%</b> done. At your current pace you finish on <b>'+fmtY(M.projEnd)+'</b>, '+cmp+'.';
+    if(tg){var dt=Math.round((M.projEnd-tg)/DAY);lead+=' '+(dt>0?'That is '+dt+' day'+(dt===1?'':'s')+' past your target of '+fmtY(tg)+'.':'That is inside your target of '+fmtY(tg)+'.')}
+  }
+  $('#lead').innerHTML=lead;
+
+  /* up next */
+  var nx=M.scope.filter(function(x){return x.n<x.tot})[0];
+  $('#next').innerHTML=nx?'Up next: <button class="linkish" type="button" data-go="'+nx.t.id+'">'+esc(nx.t.name)+'</button>, '+(nx.tot-nx.n)+' subtopic'+(nx.tot-nx.n===1?'':'s')+' left.':'';
+
+  /* weekly bars */
+  var weeks=new Array(12).fill(0);
+  M.stamps.forEach(function(s){var age=Math.floor((T-mid(s))/DAY/7);if(age>=0&&age<12)weeks[11-age]++});
+  var max=Math.max.apply(null,weeks.concat([1]));
+  $$('#weeks i').forEach(function(b,i){
+    b.style.height=(weeks[i]?Math.max(8,weeks[i]/max*64):3)+'px';
+    b.className=(i===11?'now ':'')+(weeks[i]?'has':'');
+    b.title=weeks[i]+' subtopic'+(weeks[i]===1?'':'s')+(i===11?' in the past 7 days':'');
+  });
+
+  /* topic rows */
+  M.scope.forEach(function(x){
+    var el=$('.topic[data-id="'+x.t.id+'"]');if(!el)return;
+    var st=status(x,T);
+    el.classList.toggle('done',x.n===x.tot);el.classList.toggle('doing',x.n>0&&x.n<x.tot);
+    var tag=$('.tag',el);tag.className='tag '+st[0];tag.textContent=st[1];
+    $('.m-plan',el).textContent='Planned '+fmt(x.ps)+' to '+fmt(x.endI)+', '+x.d+' days';
+    $('.m-count',el).textContent=x.n+' of '+x.tot+' subtopics';
+    $('.bar b',el).style.width=(x.n/x.tot*100)+'%';
+    $('output',el).textContent=x.d;
+    var s=x.started?'Started '+fmt(x.started):'Not started';
+    if(x.finished)s+=', finished '+fmt(x.finished)+' after '+span(x.started,x.finished)+' days';
+    $('.dates',el).textContent=s;
+    $$('.sub',el).forEach(function(b){
+      var v=S.done[b.dataset.k];
+      b.setAttribute('aria-checked',v?'true':'false');
+      $('.when',b).textContent=v?fmt(new Date(v)):'';
+    });
+    $('.tm',el).textContent=fmtMin(S.mins[x.t.id]||0)+' logged';
+    var tb=$('[data-act=timer]',el),run=S.timer&&S.timer.id===x.t.id;
+    tb.textContent=run?'Stop timer':'Start timer';tb.setAttribute('aria-pressed',String(!!run));
+  });
+
+  /* timer pill */
+  var tm=S.timer;$('#timer').hidden=!tm;
+  if(tm){var tt=findTopic(tm.id);$('#tname').textContent=tt?tt.name:'';tickTimer()}
+
+  if(VIEW==='graph')renderGraphs(M,false);
+  refreshSettingsState();
+  renderSide();
+  firstRun=false;
+}
+
+/* ================= timer ================= */
+function addMins(id,m,when){
+  S.mins[id]=Math.max(0,(S.mins[id]||0)+m);if(!S.mins[id])delete S.mins[id];
+  var k=iso(mid(when||new Date()));
+  S.dayMins[k]=Math.max(0,(S.dayMins[k]||0)+m);if(!S.dayMins[k])delete S.dayMins[k];
+}
+function stopTimer(){
+  if(!S.timer)return;
+  var st=new Date(S.timer.at),m=Math.max(1,Math.round((Date.now()-st)/60000));
+  addMins(S.timer.id,m,st);S.timer=null;save();
+}
+function startTimer(id){if(S.timer)stopTimer();S.timer={id:id,at:new Date().toISOString()};save()}
+function tickTimer(){
+  if(!S.timer)return;
+  var s=Math.max(0,Math.floor((Date.now()-new Date(S.timer.at))/1000));
+  var p=function(n){return String(n).padStart(2,'0')};
+  $('#tclock').textContent=p(Math.floor(s/3600))+':'+p(Math.floor(s%3600/60))+':'+p(s%60);
+}
+setInterval(tickTimer,1000);
+
+/* ================= graphs ================= */
+function domain(M){
+  var a=M.start;M.stamps.forEach(function(s){if(mid(s)<a)a=mid(s)});
+  var b=M.C.end;
+  [M.T,M.projEnd,okDate(S.target)?pd(S.target):null].forEach(function(d){if(d&&d>b)b=d});
+  var pad=Math.max(3,Math.round((b-a)/DAY*0.03));
+  return {a:a,b:addDays(b,pad)};
+}
+function ticks(a,b){
+  var days=(b-a)/DAY,steps=[7,14,30,60,90,180],st=365;
+  for(var i=0;i<steps.length;i++){if(days/steps[i]<=7){st=steps[i];break}}
+  var out=[];for(var t=a;t<=b;t=addDays(t,st))out.push(t);return out;
+}
+function reveal(host,fn){
+  var ran=false,run=function(){if(ran)return;ran=true;fn()};
+  ScrollTrigger.create({trigger:host,start:'top 92%',onEnter:run,onEnterBack:run});
+  setTimeout(run,2500);
+}
+function renderGraphs(M,animate){
+  if(!M)return;
+  chartBurn(M,animate);chartGantt(M,animate);chartHeat(M);chartTime(M,animate);
+}
+function svgOpen(W,H,label){return '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">'}
+
+function chartBurn(M,animate){
+  var host=$('#c-burn');
+  if(!M.tot){host.innerHTML='<p class="empty">Nothing is included in your plan yet.</p>';return}
+  var W=Math.max(300,host.clientWidth-24),H=300,m={l:40,r:16,t:38,b:30},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  var d=domain(M),x0=d.a.getTime(),x1=Math.max(d.b.getTime(),x0+DAY);
+  var X=function(t){return m.l+(t-x0)/(x1-x0)*iw},Y=function(v){return m.t+ih-v/M.tot*ih};
+  var s=svgOpen(W,H,'Cumulative subtopics finished compared with the plan');
+  for(var i=0;i<=4;i++){var v=Math.round(M.tot*i/4);s+='<line class="grid" x1="'+m.l+'" x2="'+(W-m.r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(m.l-8)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'</text>'}
+  ticks(d.a,d.b).forEach(function(t){var x=X(t.getTime());s+='<line class="grid v" x1="'+x+'" x2="'+x+'" y1="'+m.t+'" y2="'+(m.t+ih)+'"/><text x="'+x+'" y="'+(H-10)+'" text-anchor="middle">'+fmt(t)+'</text>'});
+  /* planned */
+  var ts=[x0,x1];M.scope.forEach(function(x){ts.push(x.ps.getTime(),x.pe.getTime())});
+  ts=ts.filter(function(t,i,a){return t>=x0&&t<=x1&&a.indexOf(t)===i}).sort(function(a,b){return a-b});
+  var P=function(t){var v=0;M.scope.forEach(function(x){var f=(t-x.ps.getTime())/(x.pe.getTime()-x.ps.getTime());v+=x.tot*Math.min(1,Math.max(0,f))});return v};
+  s+='<path class="ln-plan" d="'+ts.map(function(t,i){return (i?'L':'M')+X(t).toFixed(1)+' '+Y(P(t)).toFixed(1)}).join('')+'"/>';
+  /* actual */
+  var sm=M.stamps.map(function(x){return mid(x).getTime()}).sort(function(a,b){return a-b}),idx=0,pts=[];
+  for(var dt=d.a;dt<=M.T;dt=addDays(dt,1)){while(idx<sm.length&&sm[idx]<=dt.getTime())idx++;pts.push([X(dt.getTime()),Y(idx)])}
+  if(pts.length){
+    var line=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join('');
+    s+='<path class="ln-area" d="'+line+'L'+pts[pts.length-1][0].toFixed(1)+' '+Y(0)+'L'+pts[0][0].toFixed(1)+' '+Y(0)+'Z"/>';
+    s+='<path class="ln-act" d="'+line+'"/>';
+  }
+  if(M.projEnd&&pts.length){var lp=pts[pts.length-1];s+='<line class="ln-proj" x1="'+lp[0]+'" y1="'+lp[1]+'" x2="'+X(M.projEnd.getTime())+'" y2="'+Y(M.tot)+'"/>'}
+  /* markers */
+  var xt=X(M.T.getTime());s+='<line class="ln-today" x1="'+xt+'" x2="'+xt+'" y1="'+(m.t-6)+'" y2="'+(m.t+ih)+'"/><text class="strong" x="'+xt+'" y="'+(m.t-10)+'" text-anchor="middle">Today</text>';
+  if(okDate(S.target)){var tt=pd(S.target).getTime();if(tt>=x0&&tt<=x1){var xg=X(tt);s+='<line class="ln-target" x1="'+xg+'" x2="'+xg+'" y1="'+(m.t-6)+'" y2="'+(m.t+ih)+'"/><text x="'+xg+'" y="'+(m.t-10)+'" text-anchor="middle">Target</text>'}}
+  if(pts.length){var pe=pts[pts.length-1];s+='<circle cx="'+pe[0]+'" cy="'+pe[1]+'" r="4" style="fill:var(--fg)"/>'}
+  /* legend */
+  [['ln-plan','Planned'],['ln-act','Actual'],['ln-proj','Projected']].forEach(function(it,i){
+    var lx=m.l+i*84;s+='<line class="'+it[0]+'" x1="'+lx+'" x2="'+(lx+18)+'" y1="12" y2="12"/><text x="'+(lx+24)+'" y="16">'+it[1]+'</text>';
+  });
+  s+='</svg>';host.innerHTML=s;
+  if(animate&&hasGsap&&!reduce){
+    var p=$('.ln-act',host),a=$('.ln-area',host);
+    if(p){var L=p.getTotalLength();gsap.set(p,{strokeDasharray:L,strokeDashoffset:L});if(a)gsap.set(a,{opacity:0});
+      reveal(host,function(){gsap.to(p,{strokeDashoffset:0,duration:1.3,ease:'power2.out'});if(a)gsap.to(a,{opacity:1,duration:1.3,delay:.3})})}
+  }
+}
+
+function chartGantt(M,animate){
+  var host=$('#c-gantt'),rows=M.scope;
+  if(!rows.length){host.innerHTML='<p class="empty">Nothing is included in your plan yet.</p>';return}
+  var W=Math.max(300,host.clientWidth-24),lw=W<520?100:170,rh=30,m={l:lw,r:16,t:28,b:28},H=m.t+rows.length*rh+m.b,iw=W-m.l-m.r;
+  var d=domain(M),x0=d.a.getTime(),x1=Math.max(d.b.getTime(),x0+DAY);
+  var X=function(t){return m.l+(t-x0)/(x1-x0)*iw};
+  var s=svgOpen(W,H,'Planned and actual timeline for each topic');
+  ticks(d.a,d.b).forEach(function(t){var x=X(t.getTime());s+='<line class="grid v" x1="'+x+'" x2="'+x+'" y1="'+m.t+'" y2="'+(H-m.b)+'"/><text x="'+x+'" y="'+(H-10)+'" text-anchor="middle">'+fmt(t)+'</text>'});
+  var maxc=Math.floor((lw-10)/6.3);
+  rows.forEach(function(x,i){
+    var y=m.t+i*rh,nm=x.t.name.length>maxc?x.t.name.slice(0,maxc-1)+'\u2026':x.t.name;
+    s+='<line class="grid" x1="0" x2="'+W+'" y1="'+(y+rh)+'" y2="'+(y+rh)+'"/>';
+    s+='<text x="4" y="'+(y+rh/2+4)+'" class="strong">'+esc(nm)+'</text>';
+    var xa=X(x.ps.getTime()),xb=X(x.pe.getTime());
+    s+='<rect x="'+xa+'" y="'+(y+6)+'" width="'+Math.max(3,xb-xa)+'" height="18" rx="3" style="fill:var(--elev)"/>';
+    var end=xb;
+    if(x.started){
+      var sa=X(mid(x.started).getTime()),sb=X(addDays(mid(x.finished||M.T),1).getTime());
+      var opa=x.finished?1:.55;
+      s+='<rect class="gbar" x="'+sa+'" y="'+(y+11)+'" width="'+Math.max(3,sb-sa)+'" height="8" rx="2" style="fill:var(--fg);fill-opacity:'+opa+'"/>';
+      end=Math.max(end,sb);
+    }
+    var px=Math.min(end+6,W-m.r-26);
+    s+='<text x="'+px+'" y="'+(y+rh/2+4)+'">'+Math.round(x.n/x.tot*100)+'%</text>';
+  });
+  var xt=X(M.T.getTime());s+='<line class="ln-today" x1="'+xt+'" x2="'+xt+'" y1="'+(m.t-6)+'" y2="'+(H-m.b)+'"/><text class="strong" x="'+xt+'" y="'+(m.t-10)+'" text-anchor="middle">Today</text>';
+  if(okDate(S.target)){var tt=pd(S.target).getTime();if(tt>=x0&&tt<=x1){var xg=X(tt);s+='<line class="ln-target" x1="'+xg+'" x2="'+xg+'" y1="'+(m.t-6)+'" y2="'+(H-m.b)+'"/><text x="'+xg+'" y="'+(m.t-10)+'" text-anchor="middle">Target</text>'}}
+  s+='</svg>';host.innerHTML=s;
+  if(animate&&hasGsap&&!reduce){
+    var bars=$$('.gbar',host);
+    if(bars.length){gsap.set(bars,{scaleX:0,transformOrigin:'0% 50%'});
+      reveal(host,function(){gsap.to(bars,{scaleX:1,duration:.9,ease:'power2.out',stagger:.04})})}
+  }
+}
+
+function chartHeat(M){
+  var host=$('#c-heat'),W=Math.max(300,host.clientWidth-24),weeks=W<520?16:26;
+  var lw=30,gap=3,cell=Math.max(8,Math.min(18,Math.floor((W-lw-4)/weeks)-gap)),H=22+7*(cell+gap)+8;
+  var T=M.T,r0=(T.getDay()+6)%7,ws=addDays(T,-r0);
+  var val=function(k){return HEAT==='subs'?(M.bySubs[k]||0):(S.dayMins[k]||0)/60};
+  var max=0,c,r;
+  for(c=0;c<weeks;c++)for(r=0;r<7;r++){var dd=addDays(ws,-(weeks-1-c)*7+r);if(dd<=T)max=Math.max(max,val(iso(dd)))}
+  var s=svgOpen(W,H,'Daily activity heatmap'),lastMonth=-1;
+  ['Mon','Wed','Fri'].forEach(function(l,i){s+='<text x="0" y="'+(22+i*2*(cell+gap)+cell-1)+'">'+l+'</text>'});
+  for(c=0;c<weeks;c++){
+    var cs=addDays(ws,-(weeks-1-c)*7);
+    if(cs.getMonth()!==lastMonth){lastMonth=cs.getMonth();s+='<text x="'+(lw+c*(cell+gap))+'" y="12">'+cs.toLocaleDateString('en-GB',{month:'short'})+'</text>'}
+    for(r=0;r<7;r++){
+      var day=addDays(cs,r);if(day>T)continue;
+      var k=iso(day),v=val(k),x=lw+c*(cell+gap),y=22+r*(cell+gap);
+      var label=fmtY(day)+': '+(HEAT==='subs'?v+' subtopic'+(v===1?'':'s'):(v?fmtMin(v*60):'no time logged'));
+      var fillOp=v?(.22+.78*v/(max||1)).toFixed(2):null;
+      s+='<rect x="'+x+'" y="'+y+'" width="'+cell+'" height="'+cell+'" rx="2" style="fill:'+(v?'var(--fg)':'var(--elev)')+(fillOp?';fill-opacity:'+fillOp:'')+(k===iso(T)?';stroke:var(--fg);stroke-width:1.2':'')+'"><title>'+esc(label)+'</title></rect>';
+    }
+  }
+  s+='</svg>';host.innerHTML=s;
+}
+
+function chartTime(M,animate){
+  var host=$('#c-time'),rows=M.scope.filter(function(x){return (S.mins[x.t.id]||0)>0});
+  if(!rows.length){host.innerHTML='<p class="empty">Nothing logged yet. Use the timer or the quick-add buttons inside a topic.</p>';return}
+  rows.sort(function(a,b){return (S.mins[b.t.id]||0)-(S.mins[a.t.id]||0)});
+  var W=Math.max(300,host.clientWidth-24),lw=W<520?100:170,rh=28,H=rows.length*rh+8,mx=S.mins[rows[0].t.id],iw=W-lw-70;
+  var maxc=Math.floor((lw-10)/6.3),s=svgOpen(W,H,'Time logged per topic');
+  rows.forEach(function(x,i){
+    var y=4+i*rh,m=S.mins[x.t.id],w=Math.max(3,m/mx*iw),nm=x.t.name.length>maxc?x.t.name.slice(0,maxc-1)+'\u2026':x.t.name;
+    s+='<text class="strong" x="4" y="'+(y+rh/2+3)+'">'+esc(nm)+'</text>';
+    s+='<rect class="gbar" x="'+lw+'" y="'+(y+6)+'" width="'+w+'" height="12" rx="3" style="fill:var(--fg)"/>';
+    s+='<text x="'+(lw+w+8)+'" y="'+(y+rh/2+3)+'">'+fmtMin(m)+'</text>';
+  });
+  s+='</svg>';host.innerHTML=s;
+  if(animate&&hasGsap&&!reduce){
+    var bars=$$('.gbar',host);gsap.set(bars,{scaleX:0,transformOrigin:'0% 50%'});
+    reveal(host,function(){gsap.to(bars,{scaleX:1,duration:.8,ease:'power2.out',stagger:.05})});
+  }
+}
+
+/* ================= settings ================= */
+function buildSettings(){
+  var h='';
+  h+=trackerSection()+managerSection();
+  h+='<section class="cfg"><h2>Appearance</h2><div class="row"><span>Theme<small>System follows your device setting.</small></span><div class="seg2">'+
+     ['dark','light','system'].map(function(v){return '<button type="button" data-theme-set="'+v+'" aria-pressed="'+(G.theme===v)+'">'+v.charAt(0).toUpperCase()+v.slice(1)+'</button>'}).join('')+'</div></div></section>';
+
+  h+='<section class="cfg"><h2>Timeline</h2><p class="hint">These settings decide the planned dates for every topic.</p>'+
+     '<div class="row"><span>Start date<small>Day one of the plan.</small></span><input class="in" type="date" id="start" value="'+S.start+'"></div>'+
+     '<div class="row"><span>Target finish date<small>Optional. Shown on the graphs and used to check your projection.</small></span><div class="ctl"><input class="in" type="date" id="target" value="'+(S.target||'')+'"><button class="btn ghost" type="button" data-act="fit">Fit plan to target</button></div></div>'+
+     '<div class="row"><span>Study days<small>Planned days only land on the days you switch on.</small></span><div class="days">'+
+     DOW.map(function(d){return '<button type="button" data-day="'+d[1]+'" aria-pressed="'+!!S.cfg.study[d[1]]+'">'+d[0]+'</button>'}).join('')+'</div></div>'+
+     '<div class="row"><span>Buffer after each topic<small>Extra study days for revision after every topic.</small></span><input class="in" type="number" id="buffer" min="0" max="14" value="'+S.cfg.buffer+'"></div>'+
+     '<div class="row"><span>Plan speed<small id="scale-t"></small></span><div class="ctl"><span class="msg" id="fitmsg"></span><button class="btn ghost" type="button" data-act="unscale">Reset speed</button></div></div>'+
+     '</section>';
+
+  h+='<section class="cfg"><h2>Goals and pace</h2>'+
+     '<div class="row"><span>Daily goal<small>Subtopics to finish per day. Zero turns it off.</small></span><input class="in" type="number" id="daily" min="0" max="20" value="'+S.cfg.daily+'"></div>'+
+     '<div class="row"><span>Weekly study hours<small>Compared with the hours you log. Zero turns it off.</small></span><input class="in" type="number" id="weekGoal" min="0" max="80" value="'+S.cfg.weekGoal+'"></div>'+
+     '<div class="row"><span>Pace window<small>How many recent days are used to project your finish date.</small></span><select class="in" id="win">'+
+     [7,14,30].map(function(n){return '<option value="'+n+'"'+(S.cfg.win===n?' selected':'')+'>Last '+n+' days</option>'}).join('')+'</select></div>'+
+     '</section>';
+
+  h+='<section class="cfg"><h2>Data</h2><p class="hint">Your trackers are saved on this computer by the app. Download a backup file now and then, or copy the text of just this tracker to share it.</p>'+
+     '<div class="ctl"><a class="btn" href="/api/backup" download="devops-tracker-backup.json" style="text-decoration:none">Download backup file</a><button class="btn ghost" type="button" data-act="pickfile">Import from file</button><input type="file" id="dfile" accept=".json,application/json" hidden></div>'+
+     '<textarea class="ta" id="dump" rows="5" aria-label="Backup text" spellcheck="false" style="margin-top:14px" placeholder="Or paste backup text here"></textarea>'+
+     '<div class="ctl" style="margin-top:12px"><button class="btn ghost" type="button" data-act="export">Show text of this tracker</button><button class="btn ghost" type="button" data-act="import">Import pasted text</button><button class="btn ghost" type="button" data-act="resetall">Reset progress</button><span class="msg" id="datamsg"></span></div>'+
+     '<p class="hint" style="margin-top:10px">A full backup file replaces every tracker. Text or a file of a single tracker is added as a new tracker. Reset progress clears ticks, time and notes of this tracker but keeps its topics.</p></section>';
+  $('#v-settings').innerHTML=h;
+  refreshSettingsState();
+}
+function refreshSettingsState(){
+  var host=$('#v-settings');if(!host||!host.firstChild)return;
+  $$('.trow[data-tid]',host).forEach(function(r){
+    var id=r.dataset.tid,t=findTopic(id);if(!t)return;
+    var on=!S.skip[id],cb=$('[data-skip]',r),inp=$('[data-days]',r),au=$('[data-auto]',r);
+    cb.checked=on;
+    var sp=sectionOf(id);r.classList.toggle('off',!on||!!(sp&&sp.off));
+    if(document.activeElement!==inp)inp.value=effDays(t);
+    au.hidden=S.days[id]==null;
+  });
+  var sc=$('#scale-t');
+  if(sc)sc.textContent=S.scale===1?'Planned days use the roadmap defaults.':'Planned days are scaled to '+Math.round(S.scale*100)+'% of the roadmap defaults.';
+  var us=$('[data-act=unscale]');if(us)us.hidden=S.scale===1;
+}
+function fitTarget(){
+  var msg=$('#fitmsg');
+  if(!okDate(S.target)){msg.textContent='Set a target date first.';return}
+  var tg=pd(S.target),lo=0.05,hi=20;
+  if(compute(lo).end>tg){msg.textContent='That date is too soon, even with every topic squeezed down.';return}
+  for(var i=0;i<30;i++){var mdl=(lo+hi)/2;if(compute(mdl).end<=tg)lo=mdl;else hi=mdl}
+  S.scale=Math.round(lo*1000)/1000;save();
+  var e=compute().end;
+  buildSettings();$('#fitmsg').textContent='Plan now ends on '+fmtY(e)+'.';
+  update();
+}
+function fullRefresh(){applyTheme();renderSide();var q=$('#q');if(q)q.value='';build();buildSettings();update();setupScroll();setView(G.view,true)}
+
+/* ================= views ================= */
+function setView(v,quiet){
+  VIEW=v;G.view=v;if(!quiet)save();
+  ['overview','graph','templates','settings'].forEach(function(n){$('#v-'+n).hidden=(n!==v)});
+  $$('.tab').forEach(function(t){t.setAttribute('aria-selected',String(t.dataset.view===v))});
+  if(v==='graph'){requestAnimationFrame(function(){renderGraphs(LAST||analyze(),true)})}
+  if(v==='overview'&&hasGsap)requestAnimationFrame(function(){ScrollTrigger.refresh()});
+}
+
+/* ================= scroll ================= */
+function setupScroll(){
+  if(!hasGsap)return;
+  ScrollTrigger.getAll().forEach(function(t){t.kill()});
+  if(!reduce){
+    gsap.fromTo('.rail-fill',{scaleY:0},{scaleY:1,ease:'none',scrollTrigger:{trigger:'#timeline',start:'top 55%',end:'bottom 55%',scrub:.4}});
+  }
+  $$('.topic').forEach(function(el){
+    ScrollTrigger.create({trigger:el,start:'top 55%',end:'bottom 55%',toggleClass:{targets:el,className:'in-view'}});
+  });
+}
+function refreshSoon(){if(hasGsap)setTimeout(function(){ScrollTrigger.refresh()},340)}
+function intro(){
+  if(!hasGsap||reduce)return;
+  gsap.from(['h1','.tabs','#lead','.strip-wrap','.pace'],{opacity:0,y:14,duration:.8,ease:'power2.out',stagger:.1,clearProps:'all'});
+}
+
+/* ================= events ================= */
+function openTopic(id){
+  var el=$('.topic[data-id="'+id+'"]');if(!el)return;
+  el.classList.add('open');OPEN.add(id);$('.head',el).setAttribute('aria-expanded','true');
+  el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center'});refreshSoon();
+}
+var armed=false,armTm,noteTm;
+$('#app').addEventListener('click',function(e){
+  var t=e.target,b;
+  if((b=t.closest('.tab'))){setView(b.dataset.view);return}
+  if(t.closest('#theme')){G.theme=resolved()==='dark'?'light':'dark';save();applyTheme();return}
+  if(t.closest('#tstop')){stopTimer();update();return}
+  if((b=t.closest('[data-theme-set]'))){G.theme=b.dataset.themeSet;save();applyTheme();return}
+  if((b=t.closest('[data-go]'))){openTopic(b.dataset.go);return}
+  if((b=t.closest('.head'))){
+    var el=b.closest('.topic'),id=el.dataset.id,open=el.classList.toggle('open');
+    b.setAttribute('aria-expanded',open);open?OPEN.add(id):OPEN.delete(id);refreshSoon();return;
+  }
+  if((b=t.closest('.sub'))){var k=b.dataset.k;if(S.done[k])delete S.done[k];else S.done[k]=new Date().toISOString();save();update();return}
+  if((b=t.closest('.step'))){
+    var tid=b.closest('.topic').dataset.id,tp=findTopic(tid);
+    S.days[tid]=Math.max(1,effDays(tp)+Number(b.dataset.d));save();update();return;
+  }
+  if((b=t.closest('[data-act=timer]'))){
+    var id2=b.closest('.topic').dataset.id;
+    if(S.timer&&S.timer.id===id2)stopTimer();else startTimer(id2);
+    update();return;
+  }
+  if((b=t.closest('[data-add]'))){addMins(b.closest('.topic').dataset.id,Number(b.dataset.add));save();update();return}
+  if((b=t.closest('.seg'))){openTopic(b.dataset.id);return}
+  if((b=t.closest('#heat-mode button'))){
+    HEAT=b.dataset.mode;$$('#heat-mode button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+    chartHeat(LAST||analyze());return;
+  }
+  /* settings */
+  if((b=t.closest('[data-day]'))){
+    var di=Number(b.dataset.day),next=S.cfg.study.slice();next[di]=next[di]?0:1;
+    if(!next.some(Boolean))return;S.cfg.study=next;b.setAttribute('aria-pressed',String(!!next[di]));save();update();return;
+  }
+  if((b=t.closest('[data-auto]'))){delete S.days[b.dataset.auto];save();update();return}
+  if((b=t.closest('[data-mv]'))){
+    var q=b.dataset.mv.split(':'),dir=Number(q[2]);
+    if(q[0]==='s'){move(S.sections,idxOf(S.sections,q[1]),dir)}
+    else{var sp=sectionOf(q[1]);if(sp)move(sp.topics,idxOf(sp.topics,q[1]),dir)}
+    refreshAll();return;
+  }
+  if((b=t.closest('[data-addt]'))){openTopicDlg(b.dataset.addt,null);return}
+  if((b=t.closest('[data-edit]'))){var ed=b.dataset.edit.split(':');openTopicDlg(ed[0],ed[1]);return}
+  if((b=t.closest('[data-delt]'))){
+    var dt=findTopic(b.dataset.delt),dp=sectionOf(b.dataset.delt);
+    if(dt&&confirm('Delete the topic "'+dt.name+'"? Its progress, time and notes are removed too.')){
+      dp.topics=dp.topics.filter(function(x){return x.id!==dt.id});dropTopicState(dt.id);refreshAll();
+    }
+    return;
+  }
+  if((b=t.closest('[data-dels]'))){
+    var ds=S.sections.filter(function(x){return x.id===b.dataset.dels})[0];
+    if(ds&&confirm('Delete the section "'+ds.title+'" and its '+ds.topics.length+' topic(s)? Their progress is removed too.')){
+      ds.topics.forEach(function(x){dropTopicState(x.id)});S.sections=S.sections.filter(function(x){return x.id!==ds.id});refreshAll();
+    }
+    return;
+  }
+  if((b=t.closest('[data-act]'))){
+    var act=b.dataset.act;
+    if(act==='fit'){fitTarget();return}
+    if(act==='unscale'){S.scale=1;save();buildSettings();update();return}
+    if(act==='addsection'){
+      var sn=$('#sn').value.trim();
+      if(!sn){$('#smsg').textContent='Give the section a name.';return}
+      S.sections.push({id:uid('s'),title:sn.slice(0,80),topics:[]});refreshAll();return;
+    }
+    if(act==='expand'||act==='collapse'){
+      var want=act==='expand';
+      $$('.topic').forEach(function(el){if(el.hidden)return;el.classList.toggle('open',want);want?OPEN.add(el.dataset.id):OPEN.delete(el.dataset.id);$('.head',el).setAttribute('aria-expanded',String(want))});
+      refreshSoon();return;
+    }
+    if(act==='duptpl'){
+      var dup=freshTpl(S.name.slice(0,34)+' copy',clone(S.sections));dup.cfg=clone(S.cfg);dup.start=S.start;dup.target=S.target;
+      G.tpls.push(dup);switchTpl(dup.id);return;
+    }
+    if(act==='deltpl'){
+      if(G.tpls.length<2)return;
+      if(!armed){armed=true;b.textContent='Tap again to delete';armTm=setTimeout(function(){armed=false;b.textContent='Delete tracker'},3000);return}
+      clearTimeout(armTm);armed=false;stopTimer();
+      G.tpls=G.tpls.filter(function(x){return x.id!==S.id});G.active=G.tpls[0].id;S=cur();save();OPEN.clear();LAST=null;fullRefresh();return;
+    }
+    if(act==='pickfile'){$('#dfile').click();return}
+    if(act==='export'){var dp=$('#dump');dp.value=JSON.stringify(S,null,1);dp.focus();dp.select();$('#datamsg').textContent='Copy this text and keep it somewhere safe.';return}
+    if(act==='import'){importData($('#dump').value.trim());return}
+    if(act==='resetall'){
+      if(!armed){armed=true;b.textContent='Tap again to confirm';armTm=setTimeout(function(){armed=false;b.textContent='Reset progress'},3000);return}
+      clearTimeout(armTm);armed=false;stopTimer();['done','days','notes','mins','dayMins'].forEach(function(k){S[k]={}});S.scale=1;S.timer=null;save();OPEN.clear();fullRefresh();return;
+    }
+  }
+});
+$('#app').addEventListener('change',function(e){
+  var t=e.target,id=t.id;
+  if(id==='start'){if(okDate(t.value)){S.start=t.value;save();update()}return}
+  if(id==='target'){S.target=okDate(t.value)?t.value:'';save();update();return}
+  if(id==='buffer'){S.cfg.buffer=Math.min(14,Math.max(0,parseInt(t.value,10)||0));t.value=S.cfg.buffer;save();update();return}
+  if(id==='daily'){S.cfg.daily=Math.min(20,Math.max(0,parseInt(t.value,10)||0));t.value=S.cfg.daily;save();update();return}
+  if(id==='weekGoal'){S.cfg.weekGoal=Math.min(80,Math.max(0,parseFloat(t.value)||0));t.value=S.cfg.weekGoal;save();update();return}
+  if(id==='win'){S.cfg.win=Number(t.value)||14;save();update();return}
+  if(id==='tname-in'){var nv=t.value.trim();if(nv){S.name=nv.slice(0,40);save();renderSide()}else t.value=S.name;return}
+  if(id==='dfile'){var f=t.files&&t.files[0];if(f){var fr=new FileReader();fr.onload=function(){importData(String(fr.result||'').trim())};fr.readAsText(f)}t.value='';return}
+  if(t.dataset.stitle){var sp1=S.sections.filter(function(x){return x.id===t.dataset.stitle})[0],tv=t.value.trim();if(sp1&&tv){sp1.title=tv.slice(0,80);save();build();update();setupScroll()}else if(sp1)t.value=sp1.title;return}
+  if(t.dataset.soff){var sp2=S.sections.filter(function(x){return x.id===t.dataset.soff})[0];if(sp2){sp2.off=!t.checked;save();build();update();setupScroll()}return}
+  if(t.dataset.skip){if(t.checked)delete S.skip[t.dataset.skip];else S.skip[t.dataset.skip]=1;save();build();update();setupScroll();return}
+  if(t.dataset.days){var v=parseInt(t.value,10);if(v>=1){S.days[t.dataset.days]=Math.min(365,v);save();update()}else{t.value=effDays(findTopic(t.dataset.days))}return}
+});
+$('#app').addEventListener('input',function(e){
+  var t=e.target;
+  if(t.classList.contains('note-in')){
+    var id=t.closest('.topic').dataset.id;S.notes[id]=t.value;if(!t.value)delete S.notes[id];
+    clearTimeout(noteTm);noteTm=setTimeout(save,300);
+  }
+});
+var rsTm;
+window.addEventListener('resize',function(){clearTimeout(rsTm);rsTm=setTimeout(function(){if(VIEW==='graph')renderGraphs(LAST||analyze(),false)},160)});
+
+/* ================= trackers, sections, topics ================= */
+function sectionOf(tid){var r=null;S.sections.forEach(function(p){p.topics.forEach(function(t){if(t.id===tid)r=p})});return r}
+function idxOf(arr,id){for(var i=0;i<arr.length;i++)if(arr[i].id===id)return i;return -1}
+function move(arr,i,d){var j=i+d;if(i<0||j<0||j>=arr.length)return false;var x=arr.splice(i,1)[0];arr.splice(j,0,x);return true}
+function refreshAll(){save();build();buildSettings();update();setupScroll()}
+function dropTopicState(id){
+  Object.keys(S.done).forEach(function(k){if(k.indexOf(id+':')===0)delete S.done[k]});
+  delete S.notes[id];delete S.days[id];delete S.skip[id];delete S.mins[id];OPEN.delete(id);
+  if(S.timer&&S.timer.id===id)S.timer=null;
+}
+function remapDone(tid,oldS,newS){
+  var old={},used={};
+  oldS.forEach(function(_,i){var k=tid+':'+i;if(S.done[k]){old[i]=S.done[k];delete S.done[k]}});
+  Object.keys(old).forEach(function(i){
+    for(var j=0;j<newS.length;j++){if(!used[j]&&newS[j]===oldS[i]){used[j]=1;S.done[tid+':'+j]=old[i];break}}
+  });
+}
+function linksHtml(t){
+  if(!t.links||!t.links.length)return '';
+  return '<div class="links">'+t.links.map(function(l){
+    var h=l;try{var u=new URL(l);h=u.hostname.replace(/^www\./,'')+(u.pathname.length>1?u.pathname:'')}catch(e){}
+    return '<a href="'+esc(l)+'" target="_blank" rel="noopener noreferrer">'+esc(h.length>40?h.slice(0,39)+'\u2026':h)+'</a>';
+  }).join('')+'</div>';
+}
+function tplProg(t){
+  var tot=0,dn=0;
+  t.sections.forEach(function(p){if(p.off)return;p.topics.forEach(function(x){if(t.skip[x.id])return;x.subs.forEach(function(_,i){tot++;if(t.done[x.id+':'+i])dn++})})});
+  return tot?Math.round(dn/tot*100):0;
+}
+function renderSide(){
+  $('#side').classList.toggle('min',!!G.side);
+  $('#sidetog').setAttribute('aria-expanded',String(!G.side));
+  $('#tpls').innerHTML=G.tpls.map(function(t){
+    return '<button class="ti'+(t.id===S.id?' on':'')+'" type="button" data-tpl="'+esc(t.id)+'" title="'+esc(t.name)+'"><span class="ini">'+esc((t.name.trim().charAt(0)||'?').toUpperCase())+'</span><span class="lbl"><b>'+esc(t.name)+'</b><small>'+tplProg(t)+'% done</small></span></button>';
+  }).join('');
+  $('#ttitle').textContent=S.name;document.title=S.name+' tracker';
+}
+function switchTpl(id){
+  if(id===S.id)return;
+  stopTimer();G.active=id;S=cur();save();OPEN.clear();LAST=null;fullRefresh();
+}
+function trackerSection(){
+  return '<section class="cfg"><h2>This tracker</h2><p class="hint">Use the sidebar to switch between trackers or to start a new one.</p>'+
+   '<div class="row"><span>Name</span><input class="in" id="tname-in" maxlength="40" value="'+esc(S.name)+'" aria-label="Tracker name"></div>'+
+   '<div class="row"><span>Duplicate<small>Copies the topics and settings, not your progress.</small></span><button class="btn ghost" type="button" data-act="duptpl">Duplicate tracker</button></div>'+
+   '<div class="row"><span>Delete tracker<small>Removes this tracker and all of its progress.</small></span><button class="btn ghost" type="button" data-act="deltpl"'+(G.tpls.length<2?' disabled':'')+'>Delete tracker</button></div></section>';
+}
+function managerSection(){
+  var h='<section class="cfg"><h2>Sections and topics</h2><p class="hint">Add, rename, reorder or delete sections and topics. The switches include or leave out a whole section or a single topic. Use Edit on a topic to change its subtopics and links.</p>';
+  S.sections.forEach(function(p,si){
+    h+='<div class="trow sec"><input class="sw" type="checkbox" data-soff="'+p.id+'"'+(p.off?'':' checked')+' aria-label="Include the section '+esc(p.title)+'"><input class="in" data-stitle="'+p.id+'" value="'+esc(p.title)+'" maxlength="80" aria-label="Section name"><span class="pd">'+
+      '<button class="chip" type="button" data-mv="s:'+p.id+':-1" aria-label="Move section up"'+(si?'':' disabled')+'>\u2191</button><button class="chip" type="button" data-mv="s:'+p.id+':1" aria-label="Move section down"'+(si<S.sections.length-1?'':' disabled')+'>\u2193</button><button class="chip" type="button" data-dels="'+p.id+'">Delete</button></span></div>';
+    p.topics.forEach(function(t,ti){
+      h+='<div class="trow" data-tid="'+t.id+'"><input class="sw" type="checkbox" data-skip="'+t.id+'" aria-label="Include '+esc(t.name)+'"><span>'+esc(t.name)+'<small>'+t.subs.length+' subtopics, planned days</small></span>'+
+        '<span class="pd"><input class="in" type="number" min="1" max="365" data-days="'+t.id+'" aria-label="Planned days for '+esc(t.name)+'"><button class="chip" type="button" data-auto="'+t.id+'" hidden>Auto</button>'+
+        '<button class="chip" type="button" data-mv="t:'+t.id+':-1" aria-label="Move topic up"'+(ti?'':' disabled')+'>\u2191</button><button class="chip" type="button" data-mv="t:'+t.id+':1" aria-label="Move topic down"'+(ti<p.topics.length-1?'':' disabled')+'>\u2193</button>'+
+        '<button class="chip" type="button" data-edit="'+p.id+':'+t.id+'">Edit</button><button class="chip" type="button" data-delt="'+t.id+'">Delete</button></span></div>';
+    });
+    h+='<div class="addrow"><button class="btn ghost sm" type="button" data-addt="'+p.id+'">Add topic</button></div>';
+  });
+  if(!S.sections.length)h+='<p class="msg">No sections yet. Add the first one below.</p>';
+  return h+'<div class="cform"><div class="r"><input class="in grow" id="sn" placeholder="New section name" maxlength="80" aria-label="New section name"><button class="btn" type="button" data-act="addsection">Add section</button></div><span class="msg" id="smsg"></span></div></section>';
+}
+var EDIT=null;
+function openTopicDlg(sid,tid){
+  var p=S.sections.filter(function(x){return x.id===sid})[0];if(!p)return;
+  var t=tid?findTopic(tid):null;EDIT={sid:sid,tid:t?t.id:null};
+  $('#dt-title').textContent=(t?'Edit topic':'Add topic')+' in '+p.title;
+  $('#dt-name').value=t?t.name:'';$('#dt-days').value=t?t.days:7;$('#dt-core').checked=!!(t&&t.core);
+  $('#dt-subs').value=t?t.subs.join('\n'):'';$('#dt-links').value=(t&&t.links)?t.links.join('\n'):'';
+  $('#dt-msg').textContent='';$('#dlg-topic').showModal();$('#dt-name').focus();
+}
+function saveTopicDlg(){
+  var nm=$('#dt-name').value.trim(),dd=Math.min(365,Math.max(1,parseInt($('#dt-days').value,10)||7)),m=$('#dt-msg');
+  var subs=$('#dt-subs').value.split('\n').map(function(x){return x.trim()}).filter(Boolean).slice(0,150);
+  var links=$('#dt-links').value.split('\n').map(function(x){return x.trim()}).filter(isUrl).slice(0,20);
+  if(!nm){m.textContent='Give the topic a name.';return}
+  if(!subs.length){m.textContent='Add at least one subtopic, one per line.';return}
+  var p=S.sections.filter(function(x){return x.id===EDIT.sid})[0];if(!p)return;
+  var core=$('#dt-core').checked?1:0;
+  if(EDIT.tid){
+    var t=findTopic(EDIT.tid);remapDone(t.id,t.subs,subs);
+    if(dd!==t.days)delete S.days[t.id];
+    t.name=nm.slice(0,80);t.days=dd;t.subs=subs;t.links=links;t.core=core;
+  }else p.topics.push({id:uid('c'),name:nm.slice(0,80),days:dd,core:core,subs:subs,links:links});
+  $('#dlg-topic').close();refreshAll();
+}
+function createTpl(){
+  var nm=($('#dn-name').value.trim()||'New tracker').slice(0,40),kind=$('#dn-kind').value,secs;
+  if(kind==='devops')secs=defaultSections();
+  else if(kind==='copy')secs=clone(S.sections);
+  else secs=[{id:uid('s'),title:'Section 1',topics:[]}];
+  var t=freshTpl(nm,secs);G.tpls.push(t);
+  if(kind==='blank')G.view='settings';
+  $('#dlg-new').close();switchTpl(t.id);
+}
+function importData(raw){
+  var dm=$('#datamsg');
+  if(!raw){dm.textContent='Paste backup text or choose a file first.';return}
+  try{
+    var o=JSON.parse(raw);if(!o||typeof o!=='object'||Array.isArray(o))throw 0;
+    if(Array.isArray(o.tpls)){
+      if(!confirm('This replaces ALL of your trackers with the backup. Continue?'))return;
+      stopTimer();G=loadG(o);S=cur();
+    }else{
+      var t=Array.isArray(o.sections)?normTpl(o):migrate(o);
+      t.id=uid('t');t.timer=null;stopTimer();G.tpls.push(t);G.active=t.id;S=t;
+    }
+    save();OPEN.clear();LAST=null;fullRefresh();$('#datamsg').textContent='Backup imported.';
+  }catch(err){dm.textContent='That is not a valid backup.'}
+}
+function applyFilter(){
+  var q=($('#q')||{value:''}).value.trim().toLowerCase();
+  $$('.topic').forEach(function(el){
+    var t=findTopic(el.dataset.id);
+    el.hidden=!!q&&!!t&&t.name.toLowerCase().indexOf(q)<0&&!t.subs.some(function(s){return s.toLowerCase().indexOf(q)>=0});
+  });
+  $$('.phase-sec').forEach(function(sec){sec.hidden=!!q&&!$$('.topic',sec).some(function(x){return !x.hidden})});
+  refreshSoon();
+}
+$('#q').addEventListener('input',applyFilter);
+$('#side').addEventListener('click',function(e){
+  var b;
+  if(e.target.closest('#sidetog')){G.side=!G.side;save();renderSide();return}
+  if((b=e.target.closest('[data-tpl]'))){switchTpl(b.dataset.tpl);if(window.matchMedia&&matchMedia('(max-width:760px)').matches){G.side=true;renderSide()}return}
+  if(e.target.closest('#tnew')){$('#dn-name').value='';$('#dn-kind').value='blank';$('#dlg-new').showModal();$('#dn-name').focus()}
+});
+$('#dlg-topic').addEventListener('click',function(e){var b=e.target.closest('[data-dt]');if(!b)return;if(b.dataset.dt==='save')saveTopicDlg();else $('#dlg-topic').close()});
+$('#dlg-new').addEventListener('click',function(e){var b=e.target.closest('[data-dn]');if(!b)return;if(b.dataset.dn==='create')createTpl();else $('#dlg-new').close()});
+$('#dn-name').addEventListener('keydown',function(e){if(e.key==='Enter')createTpl()});
+$('#app').addEventListener('keydown',function(e){
+  var t=e.target;
+  if(e.key==='Enter'&&t.classList&&t.classList.contains('addsub-in')){
+    e.preventDefault();var v=t.value.trim();if(!v)return;
+    var id=t.closest('.topic').dataset.id,tp=findTopic(id);
+    tp.subs.push(v.slice(0,200));save();build();update();setupScroll();
+    var nx=$('.topic[data-id="'+id+'"] .addsub-in');if(nx)nx.focus();
+  }
+});
+document.addEventListener('click',function(e){
+  var a=e.target.closest&&e.target.closest('.links a');if(!a)return;
+  e.preventDefault();var u=a.href;
+  var fb=function(){window.open(u,'_blank','noopener')};
+  fetch('/api/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})})
+    .then(function(r){return r.json()}).then(function(j){if(!j.opened)fb()}).catch(fb);
+});
+
+/* ================= roadmap templates ================= */
+function T(id,name,desc,secs){return {id:id,name:name,desc:desc,secs:secs}}
+var TEMPLATES=[
+T('cyber','Cybersecurity','Networking and Linux basics, then web security, pentesting, blue team and certifications.',[
+ ['Phase 1: Foundations',[
+  ['Networking for security',14,'OSI and TCP/IP|IP addressing and subnetting|DNS, DHCP and ARP|HTTP, HTTPS and TLS|Firewalls, NAT and VPNs|Wireshark packet analysis'],
+  ['Linux and Windows for security',14,'Linux command line|Users, permissions and sudo|Services and logs|Windows internals and Active Directory basics|PowerShell basics|Bash scripting'],
+  ['Security fundamentals',10,'CIA triad|Threats, vulnerabilities and risk|Authentication and authorization|Cryptography basics|Hashing, PKI and certificates|Common attack types']]],
+ ['Phase 2: Offense and defense',[
+  ['Web application security',21,'Injection and SQLi|XSS|CSRF|Broken access control|Authentication flaws|SSRF and file upload bugs|Burp Suite workflow'],
+  ['Penetration testing',21,'Recon and OSINT|Scanning with Nmap|Vulnerability scanning|Exploitation with Metasploit|Privilege escalation|Post-exploitation and reporting'],
+  ['Blue team and SOC',21,'SIEM concepts|Log analysis|IDS and IPS (Snort, Suricata)|Incident response lifecycle|Threat hunting basics|MITRE ATT&CK']]],
+ ['Phase 3: Specialise',[
+  ['Cloud security',14,'Shared responsibility|IAM misconfigurations|Storage exposure|Logging and detection|Container security basics'],
+  ['Malware analysis basics',14,'Safe lab setup|Static analysis|Dynamic analysis|Reading assembly basics|Writing a report'],
+  ['Practice and certifications',21,'TryHackMe paths|HackTheBox machines|CTF events|Security+ prep|eJPT or CEH prep|Write-ups and portfolio']]]]),
+T('fullstack','Full stack web developer','Frontend, backend, databases and deployment, ending with a capstone project.',[
+ ['Phase 1: Frontend',[
+  ['HTML and CSS',14,'Semantic HTML|Flexbox|Grid|Responsive design|Forms and accessibility|CSS variables and animation'],
+  ['JavaScript',28,'Types, scope and closures|ES6+ features|DOM and events|Promises and async/await|Fetch and APIs|Modules and tooling|Error handling'],
+  ['React',28,'Components and props|State and hooks|Effects|Routing|Forms|State management|Data fetching|Testing basics']]],
+ ['Phase 2: Backend',[
+  ['Backend with Node and Express',21,'Node runtime|Express routing|Middleware|REST API design|Sessions and JWT|Validation and error handling|File uploads'],
+  ['Databases',21,'SQL basics|Joins and indexes|PostgreSQL|Schema design|ORMs|MongoDB basics|Transactions']]],
+ ['Phase 3: Ship it',[
+  ['Git and GitHub',7,'Branching|Pull requests|Conflict resolution|Releases'],
+  ['Testing',10,'Unit tests|Integration tests|End-to-end tests with Playwright|Mocking'],
+  ['Deployment',14,'Docker basics|Environment config|CI/CD with GitHub Actions|Cloud hosting|Domains and HTTPS|Monitoring'],
+  ['Capstone project',21,'Plan and design|Build the API|Build the UI|Authentication|Deploy|README and demo']]]]),
+T('network','Network engineer','CCNA-style path from switching and routing to security, wireless and automation.',[
+ ['Phase 1: Fundamentals',[
+  ['Networking basics',14,'OSI model|Ethernet and switching|IPv4 and subnetting|IPv6|ARP and ICMP|TCP vs UDP'],
+  ['Lab tools and Cisco IOS',7,'Packet Tracer or GNS3|CLI modes|Basic device configuration|SSH and device management|Saving and restoring configs']]],
+ ['Phase 2: CCNA core',[
+  ['Switching',14,'VLANs|Trunking 802.1Q|Spanning Tree|EtherChannel|Inter-VLAN routing|Port security'],
+  ['Routing',21,'Static routing|OSPF|Default routes|Route summarization|EIGRP awareness|BGP basics'],
+  ['IP services',10,'DHCP|NAT and PAT|NTP|DNS|ACLs|QoS basics|SNMP and syslog']]],
+ ['Phase 3: Advanced',[
+  ['Network security',14,'Firewalls|IPsec VPN|SSL VPN|AAA and RADIUS|802.1X|Hardening devices'],
+  ['Wireless and cloud networking',10,'WLAN standards|Controllers and access points|AWS VPC networking|Site-to-site VPN|SD-WAN overview'],
+  ['Automation and troubleshooting',14,'Python with Netmiko|Ansible for networks|REST APIs and NETCONF|Systematic troubleshooting|Wireshark in practice|Network documentation'],
+  ['Exam prep',14,'CCNA practice labs|Practice exams|Weak area review']]]]),
+T('cloud','Cloud engineer (AWS)','Core AWS services, infrastructure as code and a solutions architect exam path.',[
+ ['Phase 1: Core services',[
+  ['Cloud concepts',7,'Cloud models|Shared responsibility|Regions and availability zones|Pricing basics'],
+  ['IAM and security',10,'Users, groups and roles|Policies|MFA and root account safety|KMS basics|Security groups'],
+  ['Compute',14,'EC2 lifecycle|AMIs and key pairs|Auto scaling|Load balancers|Lambda basics'],
+  ['Storage and networking',14,'S3 and policies|EBS and EFS|VPC and subnets|Routing and gateways|Route 53']]],
+ ['Phase 2: Build',[
+  ['Databases',10,'RDS|Aurora awareness|DynamoDB|Backups and replicas'],
+  ['Containers',14,'ECR|ECS|EKS overview|Fargate'],
+  ['Serverless and messaging',10,'API Gateway|SQS|SNS|EventBridge|Step Functions'],
+  ['Observability and IaC',21,'CloudWatch metrics and logs|Alarms|CloudTrail|Terraform basics|CloudFormation basics']]],
+ ['Phase 3: Architect',[
+  ['Architecture and cost',12,'Well-Architected pillars|High availability patterns|Disaster recovery|Cost optimization'],
+  ['Exam prep and capstone',28,'Solutions Architect Associate study|Practice exams|Capstone project: three-tier app|Document the architecture']]]]),
+T('datasci','Data science and ML','Python, statistics and SQL, then machine learning, deep learning and MLOps.',[
+ ['Phase 1: Foundations',[
+  ['Python for data',14,'Python basics|NumPy|Functions and modules|Working with files and APIs|Notebooks'],
+  ['Math and statistics',21,'Descriptive statistics|Probability|Distributions|Hypothesis testing|Linear algebra basics|Calculus for ML'],
+  ['SQL',10,'SELECT and filtering|Joins|Aggregation|Window functions|Query performance basics']]],
+ ['Phase 2: Core',[
+  ['Data analysis with pandas',14,'DataFrames|Cleaning data|Grouping and merging|Time series|Exploratory analysis'],
+  ['Visualization',10,'Matplotlib|Seaborn|Plotly|Dashboards|Data storytelling'],
+  ['Machine learning',28,'Regression|Classification|Trees, forests and boosting|Clustering|Feature engineering|Evaluation metrics|Cross-validation|scikit-learn pipelines']]],
+ ['Phase 3: Advanced',[
+  ['Deep learning',21,'Neural network basics|PyTorch basics|CNNs|Sequence models and transformers|Transfer learning|Training tips'],
+  ['MLOps and deployment',14,'Experiment tracking|Model serving with FastAPI|Docker for models|Monitoring and drift|CI for ML'],
+  ['Portfolio',14,'Kaggle project|End-to-end project|Write a case study|Publish on GitHub']]]]),
+T('frontend','Frontend developer','Modern frontend with React and TypeScript, plus quality, accessibility and performance.',[
+ ['Phase 1: Web core',[
+  ['HTML and CSS',14,'Semantic HTML|Flexbox and Grid|Responsive design|CSS architecture|Animations'],
+  ['JavaScript',28,'Language fundamentals|DOM and events|Async programming|Modules|Browser APIs|Debugging tools'],
+  ['Git',5,'Commits and branches|Pull requests|Resolving conflicts']]],
+ ['Phase 2: Modern frontend',[
+  ['React',28,'Components and props|Hooks|Routing|Forms|Context and state libraries|Data fetching'],
+  ['TypeScript',14,'Types and interfaces|Generics|Typing React components|Strict mode and tooling'],
+  ['Styling and design systems',10,'Tailwind CSS|Component libraries|Design tokens|Dark mode']]],
+ ['Phase 3: Quality',[
+  ['Testing',10,'Unit tests|Component tests|End-to-end tests|Test strategy'],
+  ['Accessibility and performance',17,'ARIA and keyboard use|Color contrast|Core Web Vitals|Bundle size|Lazy loading'],
+  ['Next.js and portfolio',28,'Routing and rendering modes|API routes|Deploying|Build a portfolio site']]]]),
+T('flutter','Flutter mobile developer','Dart and Flutter from widgets to state management, Firebase and store release.',[
+ ['Phase 1: Basics',[
+  ['Dart',14,'Syntax and types|Null safety|Collections|OOP in Dart|Async and futures'],
+  ['Flutter widgets and layout',14,'Stateless vs stateful|Rows, columns and stacks|Lists and grids|Theming|Responsive layouts']]],
+ ['Phase 2: Real apps',[
+  ['State management',14,'setState limits|Provider|Riverpod|Bloc basics'],
+  ['Navigation',5,'Navigator|Named routes|go_router|Deep links'],
+  ['Networking and storage',17,'HTTP and JSON|Dio|Shared preferences|SQLite or Hive|Error handling'],
+  ['Firebase',10,'Authentication|Firestore|Cloud messaging|Crashlytics']]],
+ ['Phase 3: Release',[
+  ['Quality and polish',14,'Unit and widget tests|Animations|Performance profiling|Accessibility'],
+  ['Publishing',10,'App signing|Play Store listing|App Store basics|CI builds'],
+  ['Capstone app',21,'Design the screens|Build core features|Add backend|Test and release']]]]),
+T('qa','QA automation engineer','Testing fundamentals, web and API automation, CI and performance testing.',[
+ ['Phase 1: Foundations',[
+  ['Testing fundamentals',10,'Test levels and types|Test design techniques|Bug reports|Test plans and cases|Agile testing'],
+  ['Python basics',14,'Syntax and data types|Functions and modules|OOP|Files and exceptions'],
+  ['SQL and Git',7,'Queries for testers|Joins|Branching and pull requests']]],
+ ['Phase 2: Automation',[
+  ['Web automation',21,'Selenium or Playwright setup|Locators|Waits and flakiness|Page Object Model|Cross-browser runs'],
+  ['API testing',10,'REST basics|Postman|Automating with requests|Schema validation|Auth in tests'],
+  ['Test frameworks',10,'pytest basics|Fixtures|Parametrized tests|Reports']]],
+ ['Phase 3: Scale up',[
+  ['CI and BDD',17,'Jenkins or GitHub Actions|Running tests in pipelines|Cucumber and Gherkin|Test data management'],
+  ['Performance testing',7,'Load vs stress tests|JMeter or k6|Reading results'],
+  ['Framework design',14,'Folder structure|Config and secrets|Reporting|Parallel runs']]]])
+];
+function tplStats(d){var s=0,t=0,u=0,dy=0;d.secs.forEach(function(p){s++;p[1].forEach(function(x){t++;u+=x[2].split('|').length;dy+=x[1]})});return {s:s,t:t,u:u,d:dy}}
+function buildTemplates(){
+  $('#v-templates').innerHTML='<p class="lead">Pick a roadmap and it becomes a new tracker in the sidebar. You can edit every section and topic afterwards in Settings.</p><div class="tgrid">'+
+  TEMPLATES.map(function(d){
+    var st=tplStats(d);
+    return '<article class="tcard"><h3>'+esc(d.name)+'</h3><p>'+esc(d.desc)+'</p><span class="tmeta">'+st.s+' sections, '+st.t+' topics, '+st.u+' subtopics, about '+st.d+' days</span>'+
+      '<details><summary>Preview topics</summary><div>'+d.secs.map(function(p){return '<b>'+esc(p[0])+'</b>'+p[1].map(function(x){return esc(x[0])+' ('+x[1]+' days)'}).join('<br>')}).join('')+'</div></details>'+
+      '<button class="btn" type="button" data-use="'+d.id+'">Use this template</button></article>';
+  }).join('')+'</div>';
+}
+function useTemplate(id){
+  var d=TEMPLATES.filter(function(x){return x.id===id})[0];if(!d)return;
+  var secs=d.secs.map(function(p,i){
+    return {id:uid('s'),title:p[0],topics:p[1].map(function(x,j){return {id:uid('c')+i+j,name:x[0],days:x[1],core:0,subs:x[2].split('|'),links:[]}})};
+  });
+  var t=freshTpl(d.name.slice(0,40),secs);G.tpls.push(t);G.view='overview';switchTpl(t.id);
+}
+$('#v-templates').addEventListener('click',function(e){var b=e.target.closest('[data-use]');if(b)useTemplate(b.dataset.use)});
+
+/* ================= share your journey ================= */
+function openExternal(u){
+  var fb=function(){window.open(u,'_blank','noopener')};
+  fetch('/api/open',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})})
+    .then(function(r){return r.json()}).then(function(j){if(!j.opened)fb()}).catch(fb);
+}
+function postText(M){
+  var pct=M.tot?Math.round(M.done/M.tot*100):0,topicsDone=M.scope.filter(function(x){return x.n===x.tot}).length;
+  var nx=M.scope.filter(function(x){return x.n<x.tot})[0],tag=S.name.replace(/[^A-Za-z0-9]/g,'');
+  var t='Learning in public: I am '+pct+'% through my '+S.name+' roadmap, with '+M.done+' of '+M.tot+' subtopics done'+(M.streak>1?' and a '+M.streak+'-day streak':'')+'.\n\n';
+  t+=hrs(M.totalMins)+' hours logged and '+topicsDone+' topic'+(topicsDone===1?'':'s')+' finished so far.\n';
+  if(nx)t+='Up next: '+nx.t.name+'.\n';
+  return t+'\n#LearningInPublic'+(tag?' #'+tag:'');
+}
+function drawCard(M){
+  var W=1200,H=627,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
+  var cs=getComputedStyle(document.documentElement),V=function(n){return cs.getPropertyValue(n).trim()};
+  var bg=V('--bg'),fg=V('--fg'),elev=V('--elev'),mute='rgba('+V('--rgb')+',.62)',FF='"Bricolage Grotesque",system-ui,sans-serif';
+  var pct=M.tot?Math.round(M.done/M.tot*100):0,topicsDone=M.scope.filter(function(q){return q.n===q.tot}).length;
+  x.fillStyle=bg;x.fillRect(0,0,W,H);
+  x.textBaseline='alphabetic';
+  x.fillStyle=mute;x.font='500 22px '+FF;x.fillText('MY LEARNING JOURNEY',72,84);
+  x.fillStyle=fg;x.font='300 54px '+FF;x.fillText(S.name.length>30?S.name.slice(0,29)+'\u2026':S.name,72,150);
+  x.font='300 190px '+FF;x.fillText(pct+'%',72,340);
+  var pw=x.measureText(pct+'%').width;x.fillStyle=mute;x.font='400 30px '+FF;x.fillText('done',72+pw+16,340);
+  x.fillText(M.done+' of '+M.tot+' subtopics',72,392);
+  [[M.streak+(M.streak===1?' day':' days'),'Current streak'],[hrs(M.totalMins)+' h','Hours logged'],[String(topicsDone),'Topics finished']].forEach(function(s,i){
+    var y=215+i*112;x.fillStyle=fg;x.font='300 64px '+FF;x.fillText(s[0],780,y);x.fillStyle=mute;x.font='400 22px '+FF;x.fillText(s[1],780,y+34);
+  });
+  var tot=M.scope.reduce(function(a,q){return a+q.d},0),gap=4,sx=72,sw=W-144,n=M.scope.length;
+  if(n){
+    var avail=sw-gap*(n-1),px=sx;
+    M.scope.forEach(function(q){
+      var w=Math.max(4,avail*q.d/tot);x.fillStyle=elev;x.fillRect(px,470,w,34);
+      x.fillStyle=fg;x.fillRect(px,470,w*q.n/q.tot,34);px+=w+gap;
+    });
+  }
+  x.fillStyle=mute;x.font='400 22px '+FF;x.fillText('Tracked with DevOps Tracker',72,572);
+  var ds=fmtY(new Date());x.textAlign='right';x.fillText(ds,W-72,572);x.textAlign='left';
+  return c;
+}
+var shareBlob=null;
+async function openShare(){
+  var M=LAST||analyze();
+  try{await document.fonts.load('300 40px "Bricolage Grotesque"');await document.fonts.load('400 22px "Bricolage Grotesque"')}catch(e){}
+  var c=drawCard(M);$('#sh-prev').innerHTML='';$('#sh-prev').appendChild(c);
+  shareBlob=null;c.toBlob(function(b){shareBlob=b});
+  $('#sh-text').value=postText(M);$('#sh-msg').textContent='';$('#dlg-share').showModal();
+}
+async function copyImage(){
+  try{
+    if(!shareBlob||!navigator.clipboard||!window.ClipboardItem)return false;
+    await navigator.clipboard.write([new ClipboardItem({'image/png':shareBlob})]);return true;
+  }catch(e){return false}
+}
+document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-act=share]'))openShare()});
+$('#dlg-share').addEventListener('click',function(e){
+  var b=e.target.closest('[data-sh]');if(!b)return;var m=$('#sh-msg'),k=b.dataset.sh;
+  if(k==='close'){$('#dlg-share').close();return}
+  if(k==='download'){
+    if(!shareBlob){m.textContent='The image is not ready yet. Try again.';return}
+    var a=document.createElement('a');a.href=URL.createObjectURL(shareBlob);a.download='my-learning-journey.png';document.body.appendChild(a);a.click();a.remove();
+    m.textContent='Image downloaded. Attach it to your LinkedIn post.';return;
+  }
+  if(k==='copytext'){
+    (navigator.clipboard?navigator.clipboard.writeText($('#sh-text').value):Promise.reject()).then(function(){m.textContent='Text copied.'}).catch(function(){$('#sh-text').select();m.textContent='Select the text and copy it with Ctrl+C.'});return;
+  }
+  if(k==='linkedin'){
+    var p=copyImage();
+    openExternal('https://www.linkedin.com/feed/?shareActive=true&text='+encodeURIComponent($('#sh-text').value));
+    p.then(function(ok){m.textContent=ok?'Card copied. In the LinkedIn post box, press Ctrl+V to attach it.':'Could not copy the card automatically. Use Download image and attach it in LinkedIn.'});
+  }
+});
+
+/* ================= init ================= */
+$('#weeks').innerHTML=new Array(13).join('<i></i>');
+applyTheme();
+renderSide();
+buildTemplates();
+build();
+buildSettings();
+setView(G.view,true);
+setupScroll();
+intro();
+requestAnimationFrame(function(){requestAnimationFrame(update)});
+})();
+</script>
+</body>
+</html>
