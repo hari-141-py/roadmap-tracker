@@ -25,13 +25,13 @@ jobs:
 
       - name: Build Executable with PyInstaller
         run: |
-          pyinstaller --onedir --add-data "static;static" --add-data "templates;templates" desktop.py
+          pyinstaller --noconfirm --clean --windowed --onedir --name DevOpsTracker --icon app.ico --add-data "templates;templates" --add-data "static;static" desktop.py
+
+      - name: Verify PyInstaller output
+        run: dir dist\DevOpsTracker
 
       - name: Compile Inno Setup Installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
-        with:
-          path: installer.iss
-          options: /O+
+        run: iscc installer.iss
 
       - name: Upload Installer
         uses: actions/upload-artifact@v4
