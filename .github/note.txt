@@ -1,0 +1,7 @@
+GitHub Actions Automated Installer Workflow Overview:
+- Trigger: Automatically starts whenever code is pushed to the 'master' branch.
+- Environment: Spins up a cloud-based Windows virtual machine (windows-latest).
+- Step 1: Sets up Python and installs dependencies (PyInstaller).
+- Step 2: Bundles your Python application ('desktop.py') and assets into a standalone directory.
+- Step 3: Compiles your 'installer.iss' script using Inno Setup to create a standard Windows setup wizard (.exe).
+- Output: Automatically saves the final installer package into an artifact zip named 'Windows-Installer' for download.
