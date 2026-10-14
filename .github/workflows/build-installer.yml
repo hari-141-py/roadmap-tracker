@@ -33,7 +33,7 @@ jobs:
           path: installer.iss
           options: /O+
 
-      - name: Upload Installer Artifact
+      - name: Upload Installer
         uses: actions/upload-artifact@v4
         with:
           name: Windows-Installer
