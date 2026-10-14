@@ -16,6 +16,9 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
+OutputDir=installer_output
+OutputBaseFilename=DevOpsTracker-Setup
+SetupIconFile=app.ico
 ; Installs for the current user without admin rights; the user can choose "all users" in a dialog
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
